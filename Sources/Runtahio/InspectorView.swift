@@ -11,9 +11,9 @@ struct InspectorView: View {
             detail(for: node)
         } else {
             ContentUnavailableView {
-                Label("No selection", systemImage: "sidebar.squares.right")
+                Label(appState.strings.noSelection, systemImage: "sidebar.squares.right")
             } description: {
-                Text("Select an item in the \(appState.mc.mapName) or the list to inspect it.")
+                Text(appState.strings.inspectHint)
             }
         }
     }
@@ -83,7 +83,7 @@ struct InspectorView: View {
                 Button {
                     appState.addToBasket(node)
                 } label: {
-                    Label("Add to \(appState.mc.basketName)", systemImage: "trash.circle")
+                    Label(appState.strings.addToBasket, systemImage: "trash.circle")
                 }
                 .disabled(verdict.isBlocked)
                 if verdict.isBlocked {

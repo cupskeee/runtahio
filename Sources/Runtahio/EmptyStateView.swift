@@ -6,7 +6,7 @@ struct EmptyStateView: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let mc = appState.mc
+        let s = appState.strings
         VStack(spacing: 18) {
             Image(systemName: "circle.hexagongrid.circle")
                 .font(.system(size: 64))
@@ -14,8 +14,8 @@ struct EmptyStateView: View {
                 .symbolRenderingMode(.hierarchical)
 
             VStack(spacing: 6) {
-                Text(mc.emptyTitle).font(.title.weight(.semibold))
-                Text(mc.emptySubtitle)
+                Text(s.emptyTitle).font(.title.weight(.semibold))
+                Text(s.emptySubtitle)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -24,7 +24,7 @@ struct EmptyStateView: View {
             Button {
                 appState.chooseFolderAndScan()
             } label: {
-                Label(mc.emptyButton, systemImage: "folder")
+                Label(s.chooseFolder, systemImage: "folder")
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)

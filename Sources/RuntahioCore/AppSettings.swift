@@ -20,6 +20,8 @@ public final class AppSettings {
     /// Minimum fraction of a parent below which a segment may collapse into "Other".
     public var minSegmentFraction: Double { didSet { persist() } }
     public var animationsEnabled: Bool { didSet { persist() } }
+    /// Which explorer visualization to show (radial map or treemap).
+    public var visualization: VisualizationStyle { didSet { persist() } }
 
     // MARK: Safety
     /// Always defaults on. Even when off, the destructive Trash action still confirms once.
@@ -27,7 +29,12 @@ public final class AppSettings {
 
     // MARK: Recent scans / language
     public var recentScansLimit: Int { didSet { persist() } }
-    public var languageFlavor: LanguageFlavor { didSet { persist() } }
+    public var language: AppLanguage { didSet { persist() } }
+
+    /// The playful status-microcopy flavor implied by the chosen interface language.
+    public var flavor: LanguageFlavor { language.flavor }
+    /// Localized UI strings for the chosen interface language.
+    public var strings: Strings { Strings(language: language) }
 
     // MARK: First run
     public var hasSeenOnboarding: Bool { didSet { persist() } }
@@ -40,10 +47,12 @@ public final class AppSettings {
         self.collapseTinySegments = defaults.object(forKey: Keys.collapseTinySegments) as? Bool ?? true
         self.minSegmentFraction = defaults.object(forKey: Keys.minSegmentFraction) as? Double ?? 0.004
         self.animationsEnabled = defaults.object(forKey: Keys.animationsEnabled) as? Bool ?? true
+        let vizRaw = defaults.string(forKey: Keys.visualization) ?? VisualizationStyle.radial.rawValue
+        self.visualization = VisualizationStyle(rawValue: vizRaw) ?? .radial
         self.confirmBeforeTrash = defaults.object(forKey: Keys.confirmBeforeTrash) as? Bool ?? true
         self.recentScansLimit = defaults.object(forKey: Keys.recentScansLimit) as? Int ?? 10
-        let flavorRaw = defaults.string(forKey: Keys.languageFlavor) ?? LanguageFlavor.standardEnglish.rawValue
-        self.languageFlavor = LanguageFlavor(rawValue: flavorRaw) ?? .standardEnglish
+        let langRaw = defaults.string(forKey: Keys.language) ?? AppLanguage.system.rawValue
+        self.language = AppLanguage(rawValue: langRaw) ?? .system
         self.hasSeenOnboarding = defaults.object(forKey: Keys.hasSeenOnboarding) as? Bool ?? false
         self.isLoaded = true
     }
@@ -56,9 +65,10 @@ public final class AppSettings {
         defaults.set(collapseTinySegments, forKey: Keys.collapseTinySegments)
         defaults.set(minSegmentFraction, forKey: Keys.minSegmentFraction)
         defaults.set(animationsEnabled, forKey: Keys.animationsEnabled)
+        defaults.set(visualization.rawValue, forKey: Keys.visualization)
         defaults.set(confirmBeforeTrash, forKey: Keys.confirmBeforeTrash)
         defaults.set(recentScansLimit, forKey: Keys.recentScansLimit)
-        defaults.set(languageFlavor.rawValue, forKey: Keys.languageFlavor)
+        defaults.set(language.rawValue, forKey: Keys.language)
         defaults.set(hasSeenOnboarding, forKey: Keys.hasSeenOnboarding)
     }
 
@@ -87,9 +97,10 @@ public final class AppSettings {
         static let collapseTinySegments = "settings.collapseTinySegments"
         static let minSegmentFraction = "settings.minSegmentFraction"
         static let animationsEnabled = "settings.animationsEnabled"
+        static let visualization = "settings.visualization"
         static let confirmBeforeTrash = "settings.confirmBeforeTrash"
         static let recentScansLimit = "settings.recentScansLimit"
-        static let languageFlavor = "settings.languageFlavor"
+        static let language = "settings.language"
         static let hasSeenOnboarding = "settings.hasSeenOnboarding"
     }
 }

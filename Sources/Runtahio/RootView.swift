@@ -5,6 +5,7 @@ import RuntahioCore
 /// Hosts the app's confirmation dialogs, the trash-result alert, and the transient banner.
 struct RootView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         @Bindable var appState = appState
@@ -24,6 +25,9 @@ struct RootView: View {
         .toolbar { toolbarContent }
         .onExitCommand { appState.escape() }
         .onChange(of: appState.settings.useAllocatedSize) { _, _ in appState.syncDerivedSettings() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { appState.refreshVolumes() }
+        }
         .overlay(alignment: .bottom) { bannerView }
         .confirmationDialog("Move to Trash", isPresented: $appState.showTrashConfirmation, titleVisibility: .visible) {
             Button("Move \(appState.basket.count) to Trash", role: .destructive) {

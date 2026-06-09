@@ -9,14 +9,20 @@ struct SettingsView: View {
 
     var body: some View {
         @Bindable var settings = settings
+        let s = settings.strings
         Form {
-            Section("Scanning") {
+            Section(s.scanning) {
                 Toggle("Show hidden files", isOn: $settings.showHidden)
                 Toggle("Treat packages as folders", isOn: $settings.treatPackagesAsFolders)
                 Toggle("Use allocated size when available", isOn: $settings.useAllocatedSize)
             }
 
             Section("Runtah Map") {
+                Picker("Default visualization", selection: $settings.visualization) {
+                    ForEach(VisualizationStyle.allCases) { style in
+                        Text(style.displayLabel).tag(style)
+                    }
+                }
                 Toggle("Collapse tiny segments into “Other”", isOn: $settings.collapseTinySegments)
                 VStack(alignment: .leading) {
                     Text("Minimum segment size: \(percentString(settings.minSegmentFraction))")
@@ -27,7 +33,7 @@ struct SettingsView: View {
                 Toggle("Enable animations", isOn: $settings.animationsEnabled)
             }
 
-            Section("Safety") {
+            Section(s.safety) {
                 Toggle("Confirm before moving to Trash", isOn: $settings.confirmBeforeTrash)
                 Text("Runtahio always shows a confirmation before moving items to Trash. Files are moved to Trash — never permanently deleted.")
                     .font(.caption)
@@ -44,19 +50,19 @@ struct SettingsView: View {
                     .disabled(recentScans.entries.isEmpty)
             }
 
-            Section("Language") {
-                Picker("Tone", selection: $settings.languageFlavor) {
-                    ForEach(LanguageFlavor.allCases, id: \.self) { flavor in
-                        Text(flavor.displayName).tag(flavor)
+            Section(s.languageTitle) {
+                Picker(s.interfaceLanguage, selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.displayName).tag(language)
                     }
                 }
                 .pickerStyle(.radioGroup)
-                Text("The interface stays mostly English. This only changes playful status microcopy and the branding line.")
+                Text("“System” follows your Mac's language. Bahasa Indonesia also enables the playful Sundanese status microcopy.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("About") {
+            Section(s.about) {
                 LabeledContent("Runtahio", value: "Find the clutter. Free your Mac.")
                 Text(PermissionSupport.privacyNote)
                     .font(.caption)

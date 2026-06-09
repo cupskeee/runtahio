@@ -17,10 +17,11 @@ after a strong confirmation. Everything happens locally — no network, no telem
 
 - **Scan** any folder or volume recursively, off the main thread, reading *metadata only*
   (never file contents).
-- **Visualize** usage with the **Runtah Map** — an original radial "bloom" sunburst where
-  each segment's angle is proportional to size, colored by file type, with tiny items
-  collapsed into an "Other" wedge. Hover to highlight, click to select, double-click to
-  drill into folders, and use the center disk to go back up.
+- **Visualize** usage two ways: the original radial **Runtah Map** "bloom" sunburst (angle
+  proportional to size, colored by file type, tiny items collapsed into "Other"), or a
+  squarified **treemap** — switchable per scan, with animated zoom transitions on drill
+  in/out. Hover to highlight, click to select, double-click to drill, center/margin to go
+  back up.
 - **Browse** a sortable, searchable file table (Name / Size / Kind / Modified / Path) with
   folders-first and per-folder filtering.
 - **Inspect** any item: name, full path, logical & allocated size, kind, dates, flags
@@ -33,6 +34,10 @@ after a strong confirmation. Everything happens locally — no network, no telem
   extras to the basket"), and **Inaccessible Items**.
 - **Export** a scan report as JSON or CSV (local only), and watch **Lapang Mode** tally how
   much space you've freed this session.
+- Scan **internal and external volumes** from the sidebar, each showing free/total capacity,
+  with eject for removable drives (the list refreshes when drives mount/unmount).
+- Use the app in **English or Bahasa Indonesia** (the interface language is selectable;
+  Indonesian also turns on the playful Sundanese status microcopy).
 - A first-run **onboarding** screen and an original app icon round out the experience.
 
 ## Requirements
@@ -121,6 +126,7 @@ To scan system-protected locations, Runtahio needs **Full Disk Access**:
 | ⌘⇧⌫ | Move Runtah Basket to Trash (with confirmation) |
 | ⌥⌘I | Toggle inspector |
 | ⌘1–⌘6 | Switch view (Explorer / Largest / Old / Types / Duplicates / Inaccessible) |
+| ⇧⌘T | Toggle between the Runtah Map and the treemap |
 | ⌘E | Export report as JSON |
 | ⌘, | Settings |
 
@@ -136,16 +142,20 @@ Sources/RuntahioCore/              Pure, testable logic (no SwiftUI, no @main)
   DiskNode, ScanModels, ScanError  Immutable, Sendable data model
   ScannerService                   actor → AsyncStream<ScanEvent>, off-main recursive scan
   DiskNodeStore                    @MainActor removal overlay (no tree mutation)
-  RadialLayoutEngine, RadialModels Pure sunburst geometry + hit-testing
+  RadialLayoutEngine               Pure sunburst geometry + hit-testing
+  TreemapLayoutEngine              Pure squarified treemap layout + hit-testing
   ProtectedPathPolicy              Component-wise protected-path rules
   RuntahBasket, CleanupService     Dedup + Trash-only cleanup
   ScanAnalytics                    Largest / old / types / duplicates / inaccessible
   ScanReportExporter               JSON + CSV report generation
+  VolumeInfo, VolumeScanner        Mounted-volume model + classification
+  Localization (AppLanguage/Strings)  English + Bahasa Indonesia UI strings
   AppSettings, RecentScansStore    UserDefaults-backed @Observable state
-  ByteSizeFormatter, Microcopy     Formatting + flavor-aware strings
+  ByteSizeFormatter, Microcopy     Formatting + flavor-aware status microcopy
 Sources/Runtahio/                  SwiftUI app: RuntahioApp + views + AppKit/QuickLook
+  RuntahMapView, TreemapView       The two visualizations (SwiftUI Canvas)
   AnalysisView, OnboardingView…    Analysis views, onboarding, shared NodeUI/menus
-Tests/RuntahioCoreTests/           67 XCTest cases over the Core library
+Tests/RuntahioCoreTests/           84 XCTest cases over the Core library
 Scripts/make-app.sh                Wraps the binary into a signed Runtahio.app (+ icon)
 Scripts/generate-icon.swift        Renders the original "bloom" app iconset
 ```
@@ -157,13 +167,14 @@ store rather than by mutating the shared tree.
 
 ## Tests
 
-`swift test` runs 67 headless XCTest cases covering scanner aggregation (nested sizes,
+`swift test` runs 84 headless XCTest cases covering scanner aggregation (nested sizes,
 symlinks not followed, hidden counting, packages, inaccessible directories, cancellation),
-radial layout angle-sum and hit-test round-trips, the full protected-path matrix, basket
-dedup/overlap-safe totals, the Trash flow against real temp files (with a recoverable-copy
-assertion proving nothing is permanently deleted), analytics (largest/oldest/types/
-duplicates), JSON/CSV export round-trips and CSV quoting, byte formatting, and
-privacy/wording guardrails.
+radial and treemap layout (angle-sum / area-conservation / hit-test round-trips), the full
+protected-path matrix, basket dedup/overlap-safe totals, the Trash flow against real temp
+files (with a recoverable-copy assertion proving nothing is permanently deleted), analytics
+(largest/oldest/types/duplicates), JSON/CSV export round-trips and CSV quoting, volume
+classification, localization (English/Indonesian), byte formatting, and privacy/wording
+guardrails.
 
 ## Known limitations
 
@@ -180,10 +191,10 @@ privacy/wording guardrails.
 
 ## Future improvements
 
-Comparing two scans over time, more explicit external-drive handling, a treemap as an
-alternative to the radial map, animated drill transitions, and fuller localization. (The
-largest/old/types/duplicates views, JSON/CSV export, the app icon, onboarding, and the
-"Lapang Mode" freed-space summary are already implemented.)
+Comparing two scans over time, more localizations beyond English/Indonesian, and a packaged
+signed release. (The treemap, animated drill transitions, external-drive handling with
+eject, English/Indonesian localization, the largest/old/types/duplicates views, JSON/CSV
+export, the app icon, onboarding, and the "Lapang Mode" summary are all implemented.)
 
 ## Disclaimer
 

@@ -59,6 +59,8 @@ final class ScanViewModel {
     var contentMode: ContentMode = .explorer
     var sortOrder: [KeyPathComparator<DiskNode>] = [KeyPathComparator(\DiskNode.byteSize, order: .reverse)]
     var lastResult: ScanResult?
+    /// Direction of the most recent navigation, used to pick the drill animation.
+    var lastNavWasDrillIn = true
 
     @ObservationIgnored private var scanTask: Task<Void, Never>?
 
@@ -81,7 +83,7 @@ final class ScanViewModel {
         searchText = ""
         contentMode = .explorer
         progress = ScanProgress()
-        progress.statusText = Microcopy(flavor: settings.languageFlavor).preparingStatus
+        progress.statusText = Microcopy(flavor: settings.flavor).preparingStatus
         phase = .scanning
 
         let scanner = self.scanner
@@ -124,6 +126,7 @@ final class ScanViewModel {
 
     func drill(into id: DiskNode.ID) {
         guard let node = store.node(id: id), node.isContainer else { return }
+        lastNavWasDrillIn = true
         focusNodeID = id
         selectedNodeID = nil
         searchText = ""
@@ -132,12 +135,15 @@ final class ScanViewModel {
 
     func goToParent() {
         guard let focus = focusNode, let parent = store.parent(of: focus) else { return }
+        lastNavWasDrillIn = false
         focusNodeID = parent.id
         selectedNodeID = nil
     }
 
     func focus(on id: DiskNode.ID) {
-        guard store.node(id: id) != nil else { return }
+        guard let target = store.node(id: id) else { return }
+        // Breadcrumb jump: drilling out if the target is an ancestor of the current focus.
+        lastNavWasDrillIn = (focusNode?.depth ?? 0) < target.depth
         focusNodeID = id
     }
 

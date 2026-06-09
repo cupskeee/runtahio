@@ -8,25 +8,22 @@ struct SidebarView: View {
     @Environment(RecentScansStore.self) private var recentScans
 
     var body: some View {
+        let s = appState.strings
         List {
-            Section("Scan") {
-                sidebarButton("Choose Folder…", systemImage: "folder.badge.plus") {
+            Section(s.scan) {
+                sidebarButton(s.chooseFolder, systemImage: "folder.badge.plus") {
                     appState.chooseFolderAndScan()
                 }
-                if let disk = appState.startupDisk {
-                    sidebarButton("Startup Disk", systemImage: "internaldrive") {
-                        appState.startScan(disk)
-                    }
-                }
-                ForEach(appState.localVolumes, id: \.path) { volume in
-                    sidebarButton(volumeName(volume), systemImage: "externaldrive") {
-                        appState.startScan(volume)
-                    }
+            }
+
+            Section(s.volumes) {
+                ForEach(appState.volumes) { volume in
+                    volumeRow(volume)
                 }
             }
 
             if !recentScans.entries.isEmpty {
-                Section("Recent Scans") {
+                Section(s.recentScans) {
                     ForEach(recentScans.entries) { entry in
                         sidebarButton(entry.name, systemImage: "clock.arrow.circlepath") {
                             appState.startScan(entry.url)
@@ -39,13 +36,10 @@ struct SidebarView: View {
             }
 
             if appState.scan.rootNode != nil {
-                Section("Analyze") {
-                    sidebarButton(ContentMode.explorer.title, systemImage: ContentMode.explorer.systemImage, mode: .explorer)
-                    sidebarButton(ContentMode.largest.title, systemImage: ContentMode.largest.systemImage, mode: .largest)
-                    sidebarButton(ContentMode.oldest.title, systemImage: ContentMode.oldest.systemImage, mode: .oldest)
-                    sidebarButton(ContentMode.types.title, systemImage: ContentMode.types.systemImage, mode: .types)
-                    sidebarButton(ContentMode.duplicates.title, systemImage: ContentMode.duplicates.systemImage, mode: .duplicates)
-                    sidebarButton(ContentMode.inaccessible.title, systemImage: ContentMode.inaccessible.systemImage, mode: .inaccessible)
+                Section(s.analyze) {
+                    ForEach(ContentMode.allCases) { mode in
+                        sidebarButton(localizedTitle(mode), systemImage: mode.systemImage, mode: mode)
+                    }
                 }
             }
         }
@@ -62,6 +56,10 @@ struct SidebarView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    private func localizedTitle(_ mode: ContentMode) -> String {
+        appState.strings.modeTitle(ContentModeKey(rawValue: mode.rawValue) ?? .explorer)
     }
 
     /// A view-mode button that shows a checkmark when its mode is active.
@@ -95,8 +93,37 @@ struct SidebarView: View {
         .background(.bar)
     }
 
-    private func volumeName(_ url: URL) -> String {
-        let values = try? url.resourceValues(forKeys: [.volumeNameKey])
-        return values?.volumeName ?? (url.lastPathComponent.isEmpty ? url.path(percentEncoded: false) : url.lastPathComponent)
+    private func volumeRow(_ volume: VolumeInfo) -> some View {
+        Button {
+            appState.startScan(volume.url)
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: volume.systemImage)
+                    .foregroundStyle(volume.isExternal ? .teal : .secondary)
+                    .frame(width: 18)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(volume.name).lineLimit(1)
+                    Text(volume.capacityDescription)
+                        .font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 4)
+                if volume.canEject {
+                    Button { appState.eject(volume) } label: {
+                        Image(systemName: "eject")
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                    .help("Eject \(volume.name)")
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button("Scan") { appState.startScan(volume.url) }
+            if volume.canEject {
+                Button("Eject") { appState.eject(volume) }
+            }
+        }
     }
 }

@@ -32,6 +32,9 @@ final class AppState {
     // "Lapang Mode" — cumulative space freed to Trash this session.
     var sessionFreedBytes: Int64 = 0
 
+    // Mounted local volumes for the sidebar.
+    var volumes: [VolumeInfo] = []
+
     init() {
         let settings = AppSettings()
         self.settings = settings
@@ -40,22 +43,27 @@ final class AppState {
         basket.useAllocatedForReclaimable = settings.useAllocatedSize
         self.basket = basket
         self.scan = ScanViewModel(scanner: scanner, settings: settings)
+        self.volumes = VolumeScanner.currentVolumes()
     }
 
-    var mc: Microcopy { Microcopy(flavor: settings.languageFlavor) }
+    var mc: Microcopy { Microcopy(flavor: settings.flavor) }
+    var strings: Strings { settings.strings }
 
-    // MARK: Mounted volumes (local, non-system) for the sidebar.
-    var localVolumes: [URL] {
-        let keys: [URLResourceKey] = [.volumeIsLocalKey, .volumeIsBrowsableKey, .volumeNameKey]
-        let urls = FileManager.default.mountedVolumeURLs(
-            includingResourceValuesForKeys: keys, options: [.skipHiddenVolumes]) ?? []
-        return urls.filter { url in
-            let values = try? url.resourceValues(forKeys: Set(keys))
-            return (values?.volumeIsLocal ?? false) && (values?.volumeIsBrowsable ?? false)
+    // MARK: Volumes
+
+    func refreshVolumes() {
+        volumes = VolumeScanner.currentVolumes()
+    }
+
+    func eject(_ volume: VolumeInfo) {
+        do {
+            try NSWorkspace.shared.unmountAndEjectDevice(at: volume.url)
+            refreshVolumes()
+            flash("Ejected \(volume.name).")
+        } catch {
+            flash("Couldn't eject \(volume.name): \(error.localizedDescription)")
         }
     }
-
-    var startupDisk: URL? { URL(fileURLWithPath: "/") }
 
     // MARK: Scanning
 

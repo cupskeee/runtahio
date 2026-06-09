@@ -14,8 +14,8 @@ struct OnboardingView: View {
                 .symbolRenderingMode(.hierarchical)
 
             VStack(spacing: 4) {
-                Text("Welcome to \(appState.mc.appName)").font(.title.bold())
-                Text(appState.mc.tagline).foregroundStyle(.secondary)
+                Text(appState.strings.welcome).font(.title.bold())
+                Text(appState.mc.brandingSubtitle).foregroundStyle(.secondary)
             }
 
             VStack(alignment: .leading, spacing: 14) {
@@ -35,12 +35,12 @@ struct OnboardingView: View {
                     onDismiss()
                     appState.chooseFolderAndScan()
                 } label: {
-                    Label("Choose Folder…", systemImage: "folder")
+                    Label(appState.strings.chooseFolder, systemImage: "folder")
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
 
-                Button("Get Started") { onDismiss() }
+                Button(appState.strings.getStarted) { onDismiss() }
                     .controlSize(.large)
             }
             .padding(.top, 4)

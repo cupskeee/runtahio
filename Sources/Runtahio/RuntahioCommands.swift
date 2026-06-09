@@ -17,13 +17,19 @@ struct RuntahioCommands: Commands {
                 .disabled(!appState.canExport)
         }
 
-        CommandMenu("View") {
+        CommandMenu("Views") {
             modeButton(.explorer, key: "1")
             modeButton(.largest, key: "2")
             modeButton(.oldest, key: "3")
             modeButton(.types, key: "4")
             modeButton(.duplicates, key: "5")
             modeButton(.inaccessible, key: "6")
+            Divider()
+            Button(appState.settings.visualization == .treemap ? "Show Runtah Map" : "Show Treemap") {
+                appState.settings.visualization = appState.settings.visualization == .treemap ? .radial : .treemap
+            }
+            .keyboardShortcut("t", modifiers: [.command, .shift])
+            .disabled(appState.scan.rootNode == nil)
         }
 
         CommandMenu("Scan") {

@@ -38,13 +38,13 @@ struct BasketBar: View {
 
             Spacer()
 
-            Button("Clear") { basket.clear() }
+            Button(appState.strings.clear) { basket.clear() }
                 .disabled(basket.isEmpty)
 
             Button {
                 appState.requestTrash()
             } label: {
-                Label(appState.mc.moveToTrashTitle, systemImage: "trash")
+                Label(appState.strings.moveToTrash, systemImage: "trash")
             }
             .buttonStyle(.borderedProminent)
             .tint(.red)
@@ -91,8 +91,8 @@ struct BasketBar: View {
     }
 
     private var summaryText: String {
-        guard !basket.isEmpty else { return "Empty — add items to clean up." }
+        guard !basket.isEmpty else { return appState.strings.basketEmptyHint }
         let itemWord = basket.count == 1 ? "item" : "items"
-        return "\(basket.count) \(itemWord) · \(ByteSizeFormatter.string(basket.totalReclaimable)) reclaimable"
+        return "\(basket.count) \(itemWord) · \(ByteSizeFormatter.string(basket.totalReclaimable)) \(appState.strings.reclaimable)"
     }
 }

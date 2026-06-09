@@ -6,6 +6,8 @@ import RuntahioCore
 struct MainContentView: View {
     @Environment(ScanViewModel.self) private var vm
     @Environment(AppState.self) private var appState
+    @Environment(AppSettings.self) private var settings
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
@@ -68,15 +70,20 @@ struct MainContentView: View {
     @ViewBuilder
     private var topBar: some View {
         if vm.contentMode == .explorer {
-            BreadcrumbBar()
+            HStack(spacing: 8) {
+                BreadcrumbBar()
+                vizPicker
+                    .padding(.trailing, 12)
+            }
         } else {
             HStack(spacing: 8) {
                 Button { vm.showExplorer() } label: {
-                    Label("Back to Map", systemImage: "chevron.left")
+                    Label(appState.strings.backToMap, systemImage: "chevron.left")
                 }
                 .buttonStyle(.borderless)
                 Image(systemName: vm.contentMode.systemImage).foregroundStyle(.tint)
-                Text(vm.contentMode.title).fontWeight(.semibold)
+                Text(appState.strings.modeTitle(ContentModeKey(rawValue: vm.contentMode.rawValue) ?? .explorer))
+                    .fontWeight(.semibold)
                 Spacer()
             }
             .padding(.horizontal, 12)
@@ -88,7 +95,7 @@ struct MainContentView: View {
     private var contentForMode: some View {
         if vm.contentMode == .explorer {
             VSplitView {
-                RuntahMapView()
+                visualization
                     .frame(minHeight: 220, idealHeight: 320)
                 tableSection
                     .frame(minHeight: 160)
@@ -96,6 +103,51 @@ struct MainContentView: View {
         } else {
             AnalysisView()
         }
+    }
+
+    /// The radial map or treemap, cross-faded/zoomed on drill in/out.
+    private var visualization: some View {
+        ZStack {
+            switch settings.visualization {
+            case .radial: RuntahMapView()
+            case .treemap: TreemapView()
+            }
+        }
+        .id(transitionKey)
+        .transition(drillTransition)
+        .animation(vizAnimation, value: transitionKey)
+    }
+
+    private var vizPicker: some View {
+        @Bindable var settings = settings
+        return Picker("Visualization", selection: $settings.visualization) {
+            ForEach(VisualizationStyle.allCases) { style in
+                Image(systemName: style.systemImage).tag(style)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .frame(width: 84)
+        .help("Switch between the Runtah Map and the treemap")
+    }
+
+    private var transitionKey: String {
+        "\(settings.visualization.rawValue)|\(vm.focusNodeID ?? "")"
+    }
+
+    private var animationsOn: Bool { settings.animationsEnabled && !reduceMotion }
+
+    private var vizAnimation: Animation? {
+        animationsOn ? .smooth(duration: 0.3) : nil
+    }
+
+    private var drillTransition: AnyTransition {
+        guard animationsOn else { return .opacity }
+        let inScale = vm.lastNavWasDrillIn ? 0.86 : 1.12
+        let outScale = vm.lastNavWasDrillIn ? 1.12 : 0.86
+        return .asymmetric(
+            insertion: .scale(scale: inScale).combined(with: .opacity),
+            removal: .scale(scale: outScale).combined(with: .opacity))
     }
 
     private var tableSection: some View {
@@ -161,17 +213,18 @@ struct TotalsHeader: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
+        let s = appState.strings
         HStack(spacing: 18) {
-            stat("Total", value: ByteSizeFormatter.string(vm.store.effectiveTotalSize(useAllocated: vm.useAllocated)), emphasis: true)
+            stat(s.total, value: ByteSizeFormatter.string(vm.store.effectiveTotalSize(useAllocated: vm.useAllocated)), emphasis: true)
             if let result = vm.lastResult {
-                stat("Files", value: result.fileCount.formatted())
-                stat("Folders", value: result.folderCount.formatted())
+                stat(s.files, value: result.fileCount.formatted())
+                stat(s.folders, value: result.folderCount.formatted())
                 if result.inaccessibleCount > 0 {
-                    stat("Inaccessible", value: result.inaccessibleCount.formatted(), color: .orange)
+                    stat(s.inaccessible, value: result.inaccessibleCount.formatted(), color: .orange)
                 }
             }
             if appState.sessionFreedBytes > 0 {
-                stat("Freed", value: ByteSizeFormatter.string(appState.sessionFreedBytes), color: .green)
+                stat(s.freed, value: ByteSizeFormatter.string(appState.sessionFreedBytes), color: .green)
             }
             Spacer()
             if case .cancelled = vm.phase {

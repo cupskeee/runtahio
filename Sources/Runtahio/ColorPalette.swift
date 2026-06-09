@@ -13,14 +13,32 @@ enum RuntahPalette {
         isSelected: Bool,
         isHovered: Bool
     ) -> Color {
-        let isDark = colorScheme == .dark
-        let saturation: Double = segment.category.isNeutral ? 0.06 : (isDark ? 0.42 : 0.46)
+        color(hue: segment.hue, category: segment.category, depth: segment.depth,
+              colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
+    }
 
-        // Deeper rings get progressively lighter so inner/outer rings separate visually.
+    static func color(
+        for tile: TreemapTile,
+        colorScheme: ColorScheme,
+        isSelected: Bool,
+        isHovered: Bool
+    ) -> Color {
+        color(hue: tile.hue, category: tile.category, depth: tile.depth,
+              colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
+    }
+
+    /// Shared color logic: hue from file type, lightness modulated by depth, plus
+    /// selection/hover emphasis. Adapts to light/dark mode.
+    static func color(
+        hue: Double, category: FileCategory, depth: Int,
+        colorScheme: ColorScheme, isSelected: Bool, isHovered: Bool
+    ) -> Color {
+        let isDark = colorScheme == .dark
+        var sat: Double = category.isNeutral ? 0.06 : (isDark ? 0.42 : 0.46)
+
         let baseBrightness: Double = isDark ? 0.52 : 0.78
-        let depthStep = Double(max(0, segment.depth - 1)) * (isDark ? 0.07 : -0.06)
+        let depthStep = Double(max(0, depth - 1)) * (isDark ? 0.07 : -0.06)
         var brightness = clamp(baseBrightness + depthStep, 0.30, 0.95)
-        var sat = saturation
 
         if isSelected {
             sat = clamp(sat + 0.22, 0, 1)
@@ -29,7 +47,7 @@ enum RuntahPalette {
             brightness = clamp(brightness + (isDark ? 0.09 : 0.06), 0.25, 1)
         }
 
-        return Color(hue: segment.hue, saturation: sat, brightness: brightness)
+        return Color(hue: hue, saturation: sat, brightness: brightness)
     }
 
     /// Swatch color for a category, for legends/inspector chips.
