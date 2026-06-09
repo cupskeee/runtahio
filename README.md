@@ -16,7 +16,9 @@ after a strong confirmation. Everything happens locally — no network, no telem
 ## What Runtahio does
 
 - **Scan** any folder or volume recursively, off the main thread, reading *metadata only*
-  (never file contents).
+  (never file contents). It doesn't follow symlinks, and excludes `.nofollow` by default —
+  a special macOS root directory that mirrors the whole filesystem and would otherwise
+  double-count almost the entire disk when scanning `/`.
 - **Visualize** usage two ways: the original radial **Runtah Map** "bloom" sunburst (angle
   proportional to size, colored by file type, tiny items collapsed into "Other"), or a
   squarified **treemap** — switchable per scan, with animated zoom transitions on drill

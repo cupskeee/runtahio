@@ -24,16 +24,25 @@ public struct ScanOptions: Sendable, Equatable {
     public var useAllocatedSizeWhenAvailable: Bool
     /// Optional safety cap on direct children kept per directory (pathological dirs).
     public var maxChildrenPerDir: Int?
+    /// Entry names skipped entirely during a scan (not descended, not counted).
+    /// Defaults to `.nofollow` — a special macOS root directory that mirrors the whole
+    /// filesystem without following firmlinks, which would otherwise double-count almost
+    /// the entire disk when scanning `/`.
+    public var excludedNames: Set<String>
     /// Emit a progress snapshot at least this often (item-count based).
     public var emitEveryNItems: Int
     /// Emit a progress snapshot at least this often (time based), in milliseconds.
     public var emitIntervalMilliseconds: Int
+
+    /// Names excluded from every scan by default.
+    public static let defaultExcludedNames: Set<String> = [".nofollow"]
 
     public init(
         showHidden: Bool = true,
         treatPackagesAsFolders: Bool = false,
         useAllocatedSizeWhenAvailable: Bool = false,
         maxChildrenPerDir: Int? = nil,
+        excludedNames: Set<String> = ScanOptions.defaultExcludedNames,
         emitEveryNItems: Int = 256,
         emitIntervalMilliseconds: Int = 180
     ) {
@@ -41,6 +50,7 @@ public struct ScanOptions: Sendable, Equatable {
         self.treatPackagesAsFolders = treatPackagesAsFolders
         self.useAllocatedSizeWhenAvailable = useAllocatedSizeWhenAvailable
         self.maxChildrenPerDir = maxChildrenPerDir
+        self.excludedNames = excludedNames
         self.emitEveryNItems = emitEveryNItems
         self.emitIntervalMilliseconds = emitIntervalMilliseconds
     }

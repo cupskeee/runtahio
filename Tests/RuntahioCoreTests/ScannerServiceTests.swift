@@ -58,6 +58,29 @@ final class ScannerServiceTests: XCTestCase {
         XCTAssertEqual(r.fileCount, 2)
     }
 
+    func testExcludedNamesAreSkipped() async throws {
+        let root = try TempFixture.makeUniqueDir()
+        defer { TempFixture.cleanup(root) }
+        try TempFixture.writeFile("keep.txt", bytes: 100, in: root)
+        let nofollow = try TempFixture.makeDir(".nofollow", in: root)
+        try TempFixture.writeFile("dup.bin", bytes: 999_999, in: nofollow)
+
+        let scanner = ScannerService()
+
+        // Default options exclude ".nofollow", so it doesn't inflate the total.
+        let (result, _, _) = await scanner.scanToCompletion(root: root, options: ScanOptions())
+        let r = try XCTUnwrap(result)
+        XCTAssertFalse(r.rootNode.children.contains { $0.name == ".nofollow" })
+        XCTAssertEqual(r.totalSize, 100)
+
+        // With exclusions cleared, the directory IS scanned and counted.
+        let (included, _, _) = await scanner.scanToCompletion(
+            root: root, options: ScanOptions(excludedNames: []))
+        let i = try XCTUnwrap(included)
+        XCTAssertTrue(i.rootNode.children.contains { $0.name == ".nofollow" })
+        XCTAssertEqual(i.totalSize, 999_999 + 100)
+    }
+
     func testSymlinksAreNotFollowed() async throws {
         let root = try TempFixture.makeUniqueDir()
         defer { TempFixture.cleanup(root) }

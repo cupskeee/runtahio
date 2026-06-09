@@ -229,6 +229,8 @@ public actor ScannerService {
                 children.reserveCapacity(entries.count)
                 for entry in entries {
                     if Task.isCancelled { throw Cancelled() }
+                    // Skip excluded names (e.g. `.nofollow`, which mirrors the whole disk).
+                    if options.excludedNames.contains(entry.lastPathComponent) { continue }
                     if let child = try walk(entry, parentID: id, depth: depth + 1) {
                         children.append(child)
                     }
