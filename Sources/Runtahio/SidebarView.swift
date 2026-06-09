@@ -39,19 +39,13 @@ struct SidebarView: View {
             }
 
             if appState.scan.rootNode != nil {
-                Section("Filters") {
-                    sidebarButton("Largest Files", systemImage: "arrow.up.right.square") {
-                        appState.scan.applyLargestFilter()
-                    }
-                    sidebarButton("Old Files", systemImage: "calendar.badge.clock") {
-                        appState.scan.applyOldFilter()
-                    }
-                    sidebarButton("Hidden Files", systemImage: "eye.slash") {
-                        appState.scan.applyHiddenFilter()
-                    }
-                    sidebarButton("Inaccessible Items", systemImage: "lock") {
-                        appState.scan.applyInaccessibleFilter()
-                    }
+                Section("Analyze") {
+                    sidebarButton(ContentMode.explorer.title, systemImage: ContentMode.explorer.systemImage, mode: .explorer)
+                    sidebarButton(ContentMode.largest.title, systemImage: ContentMode.largest.systemImage, mode: .largest)
+                    sidebarButton(ContentMode.oldest.title, systemImage: ContentMode.oldest.systemImage, mode: .oldest)
+                    sidebarButton(ContentMode.types.title, systemImage: ContentMode.types.systemImage, mode: .types)
+                    sidebarButton(ContentMode.duplicates.title, systemImage: ContentMode.duplicates.systemImage, mode: .duplicates)
+                    sidebarButton(ContentMode.inaccessible.title, systemImage: ContentMode.inaccessible.systemImage, mode: .inaccessible)
                 }
             }
         }
@@ -66,6 +60,24 @@ struct SidebarView: View {
             Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// A view-mode button that shows a checkmark when its mode is active.
+    private func sidebarButton(_ title: String, systemImage: String, mode: ContentMode) -> some View {
+        Button {
+            if mode == .explorer { appState.scan.showExplorer() } else { appState.scan.setMode(mode) }
+        } label: {
+            HStack {
+                Label(title, systemImage: systemImage)
+                Spacer()
+                if appState.scan.contentMode == mode {
+                    Image(systemName: "checkmark").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }

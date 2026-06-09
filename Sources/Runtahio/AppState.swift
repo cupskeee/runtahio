@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import Observation
+import UniformTypeIdentifiers
 import RuntahioCore
 
 /// App-wide state and coordination: services, settings, recent scans, the basket, the
@@ -27,6 +28,9 @@ final class AppState {
     var showTrashConfirmation = false
     var lastTrashSummary: TrashSummary?
     var isTrashing = false
+
+    // "Lapang Mode" — cumulative space freed to Trash this session.
+    var sessionFreedBytes: Int64 = 0
 
     init() {
         let settings = AppSettings()
@@ -109,6 +113,22 @@ final class AppState {
         if let node = scan.selectedNode { addToBasket(node) }
     }
 
+    /// Adds many nodes at once (e.g. duplicate extras), reporting a one-line summary.
+    func addNodesToBasket(_ nodes: [DiskNode]) {
+        var added = 0, duplicate = 0, blocked = 0
+        for node in nodes {
+            switch basket.add(node, policy: policy, scanRoot: scan.scanRoot) {
+            case .added, .absorbedDescendants: added += 1
+            case .duplicateIgnored, .nestedUnderExisting: duplicate += 1
+            case .rejectedProtected, .needsConfirm: blocked += 1
+            }
+        }
+        var parts = ["Added \(added) to \(mc.basketName)"]
+        if duplicate > 0 { parts.append("\(duplicate) already there") }
+        if blocked > 0 { parts.append("\(blocked) protected/skipped") }
+        flash(parts.joined(separator: " · ") + ".")
+    }
+
     func confirmAddScanRoot() {
         guard let node = pendingScanRootConfirm else { return }
         basket.add(node, policy: policy, scanRoot: scan.scanRoot, confirmedScanRoot: true)
@@ -137,10 +157,37 @@ final class AppState {
         if let selected = scan.selectedNodeID, summary.succeededIDs.contains(selected) {
             scan.select(nil)
         }
+        sessionFreedBytes += summary.reclaimedBytes(useAllocated: settings.useAllocatedSize)
         lastTrashSummary = summary
         isTrashing = false
-        if summary.allSucceeded {
-            flash("Moved \(summary.movedCount) to Trash. Lapang!")
+    }
+
+    /// "Lapang Mode" summary string of space freed this session.
+    var lapangSummary: String {
+        "You've freed \(ByteSizeFormatter.string(sessionFreedBytes)) this session. Lebih lapang!"
+    }
+
+    // MARK: Export
+
+    var canExport: Bool { scan.lastResult != nil }
+
+    func exportReport(asJSON: Bool) {
+        guard let result = scan.lastResult else { return }
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [asJSON ? UTType.json : UTType.commaSeparatedText]
+        let base = scan.rootNode?.name.isEmpty == false ? scan.rootNode!.name : "runtahio-report"
+        panel.nameFieldStringValue = "\(base)-runtahio.\(asJSON ? "json" : "csv")"
+        panel.message = "Export Runtahio scan report (local only)"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let excluding = scan.store.removedIDs
+        let data: Data = asJSON
+            ? ScanReportExporter.json(result, useAllocated: settings.useAllocatedSize, excluding: excluding)
+            : Data(ScanReportExporter.csv(result, useAllocated: settings.useAllocatedSize, excluding: excluding).utf8)
+        do {
+            try data.write(to: url)
+            flash("Exported report to \(url.lastPathComponent).")
+        } catch {
+            flash("Export failed: \(error.localizedDescription)")
         }
     }
 

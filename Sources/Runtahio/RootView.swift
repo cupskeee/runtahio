@@ -44,6 +44,11 @@ struct RootView: View {
         } message: { summary in
             Text(summaryMessage(summary))
         }
+        .sheet(isPresented: onboardingBinding) {
+            OnboardingView {
+                appState.settings.hasSeenOnboarding = true
+            }
+        }
     }
 
     // MARK: Toolbar
@@ -68,6 +73,15 @@ struct RootView: View {
                 .help("Rescan the current folder (⌘R)")
                 .disabled(appState.scan.scanRoot == nil)
             }
+
+            Menu {
+                Button("Export as JSON…") { appState.exportReport(asJSON: true) }
+                Button("Export as CSV…") { appState.exportReport(asJSON: false) }
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
+            }
+            .help("Export a scan report (local only)")
+            .disabled(!appState.canExport)
 
             Button { appState.showInspector.toggle() } label: {
                 Label("Inspector", systemImage: "sidebar.right")
@@ -119,6 +133,13 @@ struct RootView: View {
         )
     }
 
+    private var onboardingBinding: Binding<Bool> {
+        Binding(
+            get: { !appState.settings.hasSeenOnboarding },
+            set: { if !$0 { appState.settings.hasSeenOnboarding = true } }
+        )
+    }
+
     private var trashMessage: String {
         let basket = appState.basket
         let total = ByteSizeFormatter.string(basket.totalReclaimable)
@@ -138,6 +159,10 @@ struct RootView: View {
                 lines.append("• \(outcome.item.name): \(outcome.errorMessage ?? "unknown error")")
             }
             lines.append("Tip: Rescan to refresh totals.")
+        }
+        if summary.movedCount > 0 {
+            lines.append("")
+            lines.append(appState.lapangSummary)
         }
         return lines.joined(separator: "\n")
     }

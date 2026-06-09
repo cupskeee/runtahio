@@ -28,6 +28,12 @@ after a strong confirmation. Everything happens locally — no network, no telem
 - **Clean up safely** via the **Runtah Basket**: stage items, see the total reclaimable
   size, then **Move to Trash** after a confirmation dialog. Files are never permanently
   deleted, and dangerous system locations can't be added.
+- **Analyze** the whole scan with dedicated views: **Largest Files**, **Old Files**,
+  a **File Types** breakdown, **Duplicates** (same name + size, with one-click "add the
+  extras to the basket"), and **Inaccessible Items**.
+- **Export** a scan report as JSON or CSV (local only), and watch **Lapang Mode** tally how
+  much space you've freed this session.
+- A first-run **onboarding** screen and an original app icon round out the experience.
 
 ## Requirements
 
@@ -114,6 +120,8 @@ To scan system-protected locations, Runtahio needs **Full Disk Access**:
 | ⌘⌫ | Add selected item to Runtah Basket |
 | ⌘⇧⌫ | Move Runtah Basket to Trash (with confirmation) |
 | ⌥⌘I | Toggle inspector |
+| ⌘1–⌘6 | Switch view (Explorer / Largest / Old / Types / Duplicates / Inaccessible) |
+| ⌘E | Export report as JSON |
 | ⌘, | Settings |
 
 Double-click a folder (in the map or table) to drill in; the table's Preview and the
@@ -131,11 +139,15 @@ Sources/RuntahioCore/              Pure, testable logic (no SwiftUI, no @main)
   RadialLayoutEngine, RadialModels Pure sunburst geometry + hit-testing
   ProtectedPathPolicy              Component-wise protected-path rules
   RuntahBasket, CleanupService     Dedup + Trash-only cleanup
+  ScanAnalytics                    Largest / old / types / duplicates / inaccessible
+  ScanReportExporter               JSON + CSV report generation
   AppSettings, RecentScansStore    UserDefaults-backed @Observable state
   ByteSizeFormatter, Microcopy     Formatting + flavor-aware strings
 Sources/Runtahio/                  SwiftUI app: RuntahioApp + views + AppKit/QuickLook
-Tests/RuntahioCoreTests/           54 XCTest cases over the Core library
-Scripts/make-app.sh                Wraps the binary into a signed Runtahio.app
+  AnalysisView, OnboardingView…    Analysis views, onboarding, shared NodeUI/menus
+Tests/RuntahioCoreTests/           67 XCTest cases over the Core library
+Scripts/make-app.sh                Wraps the binary into a signed Runtahio.app (+ icon)
+Scripts/generate-icon.swift        Renders the original "bloom" app iconset
 ```
 
 Concurrency is Swift 6 strict-mode clean: the scanner runs as an `actor` and emits a single
@@ -145,12 +157,13 @@ store rather than by mutating the shared tree.
 
 ## Tests
 
-`swift test` runs 54 headless XCTest cases covering scanner aggregation (nested sizes,
+`swift test` runs 67 headless XCTest cases covering scanner aggregation (nested sizes,
 symlinks not followed, hidden counting, packages, inaccessible directories, cancellation),
 radial layout angle-sum and hit-test round-trips, the full protected-path matrix, basket
 dedup/overlap-safe totals, the Trash flow against real temp files (with a recoverable-copy
-assertion proving nothing is permanently deleted), byte formatting, and privacy/wording
-guardrails.
+assertion proving nothing is permanently deleted), analytics (largest/oldest/types/
+duplicates), JSON/CSV export round-trips and CSV quoting, byte formatting, and
+privacy/wording guardrails.
 
 ## Known limitations
 
@@ -167,9 +180,10 @@ guardrails.
 
 ## Future improvements
 
-Global "largest files" / "old files" views, a file-type breakdown panel, duplicate-file
-detection, scan comparison, JSON/CSV export, a custom app icon, an onboarding screen, a
-freed-space "Lapang Mode" summary, and fuller localization.
+Comparing two scans over time, more explicit external-drive handling, a treemap as an
+alternative to the radial map, animated drill transitions, and fuller localization. (The
+largest/old/types/duplicates views, JSON/CSV export, the app icon, onboarding, and the
+"Lapang Mode" freed-space summary are already implemented.)
 
 ## Disclaimer
 

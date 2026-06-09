@@ -10,11 +10,33 @@ extension DiskNode {
     var modifiedSortKey: Date { modifiedDate ?? .distantPast }
 }
 
-/// A lightweight filter applied to the current node's children list.
-enum ListFilter: Equatable {
-    case none
-    case hiddenOnly
-    case inaccessibleOnly
+/// Which view the main content area shows. `.explorer` is the radial map + drill-down
+/// table; the rest are whole-scan analysis views.
+enum ContentMode: String, CaseIterable, Identifiable, Equatable {
+    case explorer, largest, oldest, types, duplicates, inaccessible
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .explorer: return "Explorer"
+        case .largest: return "Largest Files"
+        case .oldest: return "Old Files"
+        case .types: return "File Types"
+        case .duplicates: return "Duplicates"
+        case .inaccessible: return "Inaccessible Items"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .explorer: return "circle.hexagongrid"
+        case .largest: return "arrow.up.right.square"
+        case .oldest: return "calendar.badge.clock"
+        case .types: return "chart.pie"
+        case .duplicates: return "doc.on.doc"
+        case .inaccessible: return "lock"
+        }
+    }
 }
 
 /// Owns one scan's lifecycle, navigation (focus/selection/breadcrumb), and the derived
@@ -34,7 +56,7 @@ final class ScanViewModel {
     var selectedNodeID: DiskNode.ID?
     var searchText = ""
     var foldersFirst = false
-    var listFilter: ListFilter = .none
+    var contentMode: ContentMode = .explorer
     var sortOrder: [KeyPathComparator<DiskNode>] = [KeyPathComparator(\DiskNode.byteSize, order: .reverse)]
     var lastResult: ScanResult?
 
@@ -57,7 +79,7 @@ final class ScanViewModel {
         focusNodeID = nil
         selectedNodeID = nil
         searchText = ""
-        listFilter = .none
+        contentMode = .explorer
         progress = ScanProgress()
         progress.statusText = Microcopy(flavor: settings.languageFlavor).preparingStatus
         phase = .scanning
@@ -105,7 +127,7 @@ final class ScanViewModel {
         focusNodeID = id
         selectedNodeID = nil
         searchText = ""
-        listFilter = .none
+        contentMode = .explorer
     }
 
     func goToParent() {
@@ -130,16 +152,7 @@ final class ScanViewModel {
     var visibleChildren: [DiskNode] {
         guard let focus = focusNode else { return [] }
         var kids = store.effectiveChildren(of: focus)
-
-        switch listFilter {
-        case .none:
-            if !settings.showHidden { kids = kids.filter { !$0.isHidden } }
-        case .hiddenOnly:
-            kids = kids.filter { $0.isHidden }
-        case .inaccessibleOnly:
-            kids = kids.filter { $0.type == .inaccessible }
-        }
-
+        if !settings.showHidden { kids = kids.filter { !$0.isHidden } }
         if !searchText.isEmpty {
             kids = kids.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
@@ -150,25 +163,15 @@ final class ScanViewModel {
         return kids
     }
 
-    // MARK: Sidebar filter shortcuts (operate on the current node's children).
+    // MARK: Content mode (explorer vs. whole-scan analysis views)
 
-    func applyLargestFilter() {
-        focusToRoot()
-        listFilter = .none
-        sortOrder = [KeyPathComparator(\DiskNode.byteSize, order: .reverse)]
+    func setMode(_ mode: ContentMode) {
+        contentMode = mode
+        selectedNodeID = nil
     }
-    func applyOldFilter() {
-        focusToRoot()
-        listFilter = .none
-        sortOrder = [KeyPathComparator(\DiskNode.modifiedSortKey, order: .forward)]
-    }
-    func applyHiddenFilter() {
-        listFilter = .hiddenOnly
-    }
-    func applyInaccessibleFilter() {
-        listFilter = .inaccessibleOnly
-    }
-    private func focusToRoot() {
-        if let root = rootNode { focusNodeID = root.id; selectedNodeID = nil; searchText = "" }
+    func showExplorer() {
+        contentMode = .explorer
+        if let root = rootNode { focusNodeID = root.id }
+        selectedNodeID = nil
     }
 }

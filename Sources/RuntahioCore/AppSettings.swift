@@ -29,6 +29,9 @@ public final class AppSettings {
     public var recentScansLimit: Int { didSet { persist() } }
     public var languageFlavor: LanguageFlavor { didSet { persist() } }
 
+    // MARK: First run
+    public var hasSeenOnboarding: Bool { didSet { persist() } }
+
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.showHidden = defaults.object(forKey: Keys.showHidden) as? Bool ?? true
@@ -41,6 +44,7 @@ public final class AppSettings {
         self.recentScansLimit = defaults.object(forKey: Keys.recentScansLimit) as? Int ?? 10
         let flavorRaw = defaults.string(forKey: Keys.languageFlavor) ?? LanguageFlavor.standardEnglish.rawValue
         self.languageFlavor = LanguageFlavor(rawValue: flavorRaw) ?? .standardEnglish
+        self.hasSeenOnboarding = defaults.object(forKey: Keys.hasSeenOnboarding) as? Bool ?? false
         self.isLoaded = true
     }
 
@@ -55,6 +59,7 @@ public final class AppSettings {
         defaults.set(confirmBeforeTrash, forKey: Keys.confirmBeforeTrash)
         defaults.set(recentScansLimit, forKey: Keys.recentScansLimit)
         defaults.set(languageFlavor.rawValue, forKey: Keys.languageFlavor)
+        defaults.set(hasSeenOnboarding, forKey: Keys.hasSeenOnboarding)
     }
 
     /// Scan options derived from the current settings.
@@ -85,5 +90,6 @@ public final class AppSettings {
         static let confirmBeforeTrash = "settings.confirmBeforeTrash"
         static let recentScansLimit = "settings.recentScansLimit"
         static let languageFlavor = "settings.languageFlavor"
+        static let hasSeenOnboarding = "settings.hasSeenOnboarding"
     }
 }

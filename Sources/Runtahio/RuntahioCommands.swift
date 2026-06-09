@@ -9,6 +9,21 @@ struct RuntahioCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("Choose Folder…") { appState.chooseFolderAndScan() }
                 .keyboardShortcut("o", modifiers: .command)
+            Divider()
+            Button("Export Report as JSON…") { appState.exportReport(asJSON: true) }
+                .keyboardShortcut("e", modifiers: .command)
+                .disabled(!appState.canExport)
+            Button("Export Report as CSV…") { appState.exportReport(asJSON: false) }
+                .disabled(!appState.canExport)
+        }
+
+        CommandMenu("View") {
+            modeButton(.explorer, key: "1")
+            modeButton(.largest, key: "2")
+            modeButton(.oldest, key: "3")
+            modeButton(.types, key: "4")
+            modeButton(.duplicates, key: "5")
+            modeButton(.inaccessible, key: "6")
         }
 
         CommandMenu("Scan") {
@@ -44,5 +59,14 @@ struct RuntahioCommands: Commands {
             Button("Toggle Inspector") { appState.showInspector.toggle() }
                 .keyboardShortcut("i", modifiers: [.command, .option])
         }
+    }
+
+    @ViewBuilder
+    private func modeButton(_ mode: ContentMode, key: KeyEquivalent) -> some View {
+        Button(mode == .explorer ? "Explorer (Map)" : mode.title) {
+            if mode == .explorer { appState.scan.showExplorer() } else { appState.scan.setMode(mode) }
+        }
+        .keyboardShortcut(key, modifiers: .command)
+        .disabled(appState.scan.rootNode == nil)
     }
 }

@@ -57,16 +57,44 @@ struct MainContentView: View {
 
     private var resultsView: some View {
         VStack(spacing: 0) {
-            BreadcrumbBar()
+            topBar
             Divider()
             TotalsHeader()
             Divider()
+            contentForMode
+        }
+    }
+
+    @ViewBuilder
+    private var topBar: some View {
+        if vm.contentMode == .explorer {
+            BreadcrumbBar()
+        } else {
+            HStack(spacing: 8) {
+                Button { vm.showExplorer() } label: {
+                    Label("Back to Map", systemImage: "chevron.left")
+                }
+                .buttonStyle(.borderless)
+                Image(systemName: vm.contentMode.systemImage).foregroundStyle(.tint)
+                Text(vm.contentMode.title).fontWeight(.semibold)
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+        }
+    }
+
+    @ViewBuilder
+    private var contentForMode: some View {
+        if vm.contentMode == .explorer {
             VSplitView {
                 RuntahMapView()
                     .frame(minHeight: 220, idealHeight: 320)
                 tableSection
                     .frame(minHeight: 160)
             }
+        } else {
+            AnalysisView()
         }
     }
 
@@ -81,14 +109,6 @@ struct MainContentView: View {
                 Toggle("Folders first", isOn: $vm.foldersFirst)
                     .toggleStyle(.checkbox)
                 Spacer()
-                if vm.listFilter != .none {
-                    Button {
-                        vm.listFilter = .none
-                    } label: {
-                        Label("Clear filter", systemImage: "line.3.horizontal.decrease.circle")
-                    }
-                    .controlSize(.small)
-                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -138,6 +158,7 @@ struct BreadcrumbBar: View {
 /// Summary statistics for the current scan.
 struct TotalsHeader: View {
     @Environment(ScanViewModel.self) private var vm
+    @Environment(AppState.self) private var appState
 
     var body: some View {
         HStack(spacing: 18) {
@@ -148,6 +169,9 @@ struct TotalsHeader: View {
                 if result.inaccessibleCount > 0 {
                     stat("Inaccessible", value: result.inaccessibleCount.formatted(), color: .orange)
                 }
+            }
+            if appState.sessionFreedBytes > 0 {
+                stat("Freed", value: ByteSizeFormatter.string(appState.sessionFreedBytes), color: .green)
             }
             Spacer()
             if case .cancelled = vm.phase {

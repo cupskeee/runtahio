@@ -4,12 +4,12 @@ import XCTest
 
 /// Builders for synthetic `DiskNode` trees (no filesystem needed) and on-disk fixtures.
 enum TestTree {
-    static func file(_ name: String, size: Int64, parentID: String, depth: Int, ext: String? = nil) -> DiskNode {
+    static func file(_ name: String, size: Int64, parentID: String, depth: Int, ext: String? = nil, modified: Date? = nil) -> DiskNode {
         let id = parentID + "/" + name
         return DiskNode(
             id: id, parentID: parentID, name: name, url: URL(fileURLWithPath: id),
             type: .file, depth: depth, isHidden: false, isReadable: true, isPackage: false,
-            isSymlink: false, fileExtension: ext, modifiedDate: nil, createdDate: nil,
+            isSymlink: false, fileExtension: ext, modifiedDate: modified, createdDate: nil,
             byteSize: size, allocatedSize: size, children: [],
             fileCount: 0, folderCount: 0, inaccessibleCount: 0, scanError: nil)
     }

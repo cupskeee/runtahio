@@ -22,6 +22,9 @@ let package = Package(
         .executableTarget(
             name: "Runtahio",
             dependencies: ["RuntahioCore"],
+            // The iconset under Resources/ is consumed by Scripts/make-app.sh (iconutil),
+            // not bundled by SPM, so exclude it from the target's source scan.
+            exclude: ["Resources"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
