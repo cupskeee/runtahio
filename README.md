@@ -2,6 +2,11 @@
 
 **Find the clutter. Free your Mac.** · _Beresin storage Mac kamu._
 
+[![CI](https://github.com/cupskeee/runtahio/actions/workflows/ci.yml/badge.svg)](https://github.com/cupskeee/runtahio/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Platform: macOS 26+](https://img.shields.io/badge/platform-macOS%2026%2B-blue)
+![Swift 6.2](https://img.shields.io/badge/Swift-6.2-orange)
+
 Runtahio is an original, native macOS disk-usage visualizer and safe cleanup utility. It
 scans a folder or volume, shows what is taking up space with an interactive radial **Runtah
 Map**, lets you inspect files and folders, and safely moves unwanted items to the Trash
@@ -197,6 +202,20 @@ Comparing two scans over time, more localizations beyond English/Indonesian, and
 signed release. (The treemap, animated drill transitions, external-drive handling with
 eject, English/Indonesian localization, the largest/old/types/duplicates views, JSON/CSV
 export, the app icon, onboarding, and the "Lapang Mode" summary are all implemented.)
+
+## Contributing & community
+
+Contributions are welcome! Please start with:
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to build, test, and submit changes, plus the
+  project invariants (local-only, metadata-only, Trash-only, Swift 6 strict concurrency).
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** — the Contributor Covenant we follow.
+- **[SECURITY.md](SECURITY.md)** — how to report a vulnerability privately.
+- **[CHANGELOG.md](CHANGELOG.md)** — notable changes per release.
+
+Bug reports and feature requests go through the
+[issue templates](https://github.com/cupskeee/runtahio/issues/new/choose). CI runs
+`swift build` and `swift test` on every push and pull request.
 
 ## Disclaimer
 

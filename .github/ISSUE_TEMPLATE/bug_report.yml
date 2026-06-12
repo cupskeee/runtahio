@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a problem with Runtahio
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Runtahio runs entirely locally —
+        please do **not** include the contents of private files. Paths and sizes are
+        usually enough to reproduce a scanning or layout issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug.
+      placeholder: When I scan an external drive, the treemap shows…
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce it?
+      placeholder: |
+        1. Open Runtahio
+        2. Scan '…'
+        3. Click '…'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+      placeholder: "e.g. macOS 26.1 (Apple Silicon)"
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Runtahio version / commit
+      description: The release tag, or the short commit hash you built from.
+      placeholder: "e.g. v0.1.0 or 32d5dfc"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Any console output, a scan error message, or a screenshot. Code/logs are automatically formatted.
+      render: shell
+    validations:
+      required: false
