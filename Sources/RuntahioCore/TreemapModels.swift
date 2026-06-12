@@ -44,7 +44,8 @@ public struct TreemapTile: Identifiable, Sendable, Equatable {
     ) {
         self.id = id; self.nodeID = nodeID; self.parentNodeID = parentNodeID; self.rect = rect
         self.depth = depth; self.byteSize = byteSize; self.displayName = displayName
-        self.hue = hue; self.category = category; self.isOther = isOther; self.isDrillable = isDrillable
+        self.hue = hue; self.category = category; self.isOther = isOther;
+        self.isDrillable = isDrillable
     }
 }
 

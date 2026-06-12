@@ -21,8 +21,8 @@ struct RuntahMapView: View {
 
     private var layoutSignature: String {
         "\(vm.focusNodeID ?? "")|\(Int(canvasSize.width))x\(Int(canvasSize.height))|"
-        + "\(settings.collapseTinySegments)|\(settings.minSegmentFraction)|"
-        + "\(settings.useAllocatedSize)|\(vm.store.removedIDs.count)"
+            + "\(settings.collapseTinySegments)|\(settings.minSegmentFraction)|"
+            + "\(settings.useAllocatedSize)|\(vm.store.removedIDs.count)"
     }
 
     var body: some View {
@@ -35,13 +35,16 @@ struct RuntahMapView: View {
                     switch phase {
                     case .active(let location):
                         hoverLocation = location
-                        hoveredSegmentID = RadialLayoutEngine.hitTest(segments, at: location, geometry: canvasSize)?.id
+                        hoveredSegmentID =
+                            RadialLayoutEngine.hitTest(
+                                segments, at: location, geometry: canvasSize)?.id
                     case .ended:
                         hoveredSegmentID = nil
                     }
                 }
                 .gesture(SpatialTapGesture(count: 1).onEnded { handleTap($0.location) })
-                .highPriorityGesture(SpatialTapGesture(count: 2).onEnded { handleDoubleTap($0.location) })
+                .highPriorityGesture(
+                    SpatialTapGesture(count: 2).onEnded { handleDoubleTap($0.location) })
 
                 if let segment = hoveredSegment {
                     tooltip(for: segment)
@@ -50,9 +53,11 @@ struct RuntahMapView: View {
                 }
 
                 if segments.isEmpty {
-                    Text(vm.focusNode?.isContainer == true ? "Empty folder" : "Nothing to visualize")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        vm.focusNode?.isContainer == true ? "Empty folder" : "Nothing to visualize"
+                    )
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
                 }
             }
             .onAppear { canvasSize = geo.size }
@@ -74,7 +79,8 @@ struct RuntahMapView: View {
         let excluding = vm.store.removedIDs
         let size = canvasSize
         let computed = await Task.detached(priority: .userInitiated) {
-            RadialLayoutEngine.layout(focus: focus, geometry: size, options: options, excludingIDs: excluding)
+            RadialLayoutEngine.layout(
+                focus: focus, geometry: size, options: options, excludingIDs: excluding)
         }.value
         segments = computed
     }
@@ -89,10 +95,12 @@ struct RuntahMapView: View {
             let path = sectorPath(segment, size: size)
             let isSelected = segment.nodeID != nil && segment.nodeID == selected
             let isHovered = segment.id == hoveredSegmentID
-            let color = RuntahPalette.color(for: segment, colorScheme: colorScheme,
-                                            isSelected: isSelected, isHovered: isHovered)
+            let color = RuntahPalette.color(
+                for: segment, colorScheme: colorScheme,
+                isSelected: isSelected, isHovered: isHovered)
             context.fill(path, with: .color(color))
-            context.stroke(path, with: .color(RuntahPalette.stroke(colorScheme: colorScheme)), lineWidth: 0.75)
+            context.stroke(
+                path, with: .color(RuntahPalette.stroke(colorScheme: colorScheme)), lineWidth: 0.75)
             if isSelected {
                 context.stroke(path, with: .color(.primary), lineWidth: 1.8)
             }
@@ -101,20 +109,27 @@ struct RuntahMapView: View {
         // Center focus disk + label.
         let geo = RadialLayoutEngine.geometry(for: size, options: settings.radialLayoutOptions)
         let radius = geo.centerDiskRadius
-        let diskRect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
-        context.fill(Circle().path(in: diskRect), with: .color(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.06)))
-        context.stroke(Circle().path(in: diskRect), with: .color(.secondary.opacity(0.4)), lineWidth: 1)
+        let diskRect = CGRect(
+            x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        context.fill(
+            Circle().path(in: diskRect),
+            with: .color(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.06)))
+        context.stroke(
+            Circle().path(in: diskRect), with: .color(.secondary.opacity(0.4)), lineWidth: 1)
 
         if let focus = vm.focusNode, radius > 22 {
             let name = focus.name.isEmpty ? "/" : focus.name
             let sizeText = ByteSizeFormatter.string(vm.displaySize(focus))
-            context.draw(Text(name).font(.caption).bold().foregroundStyle(.primary),
-                         at: CGPoint(x: center.x, y: center.y - 8))
-            context.draw(Text(sizeText).font(.caption2).foregroundStyle(.secondary),
-                         at: CGPoint(x: center.x, y: center.y + 9))
+            context.draw(
+                Text(name).font(.caption).bold().foregroundStyle(.primary),
+                at: CGPoint(x: center.x, y: center.y - 8))
+            context.draw(
+                Text(sizeText).font(.caption2).foregroundStyle(.secondary),
+                at: CGPoint(x: center.x, y: center.y + 9))
             if vm.canGoToParent {
-                context.draw(Text("↑ up").font(.system(size: 9)).foregroundStyle(.tertiary),
-                             at: CGPoint(x: center.x, y: center.y + 24))
+                context.draw(
+                    Text("↑ up").font(.system(size: 9)).foregroundStyle(.tertiary),
+                    at: CGPoint(x: center.x, y: center.y + 24))
             }
         }
     }
@@ -125,7 +140,7 @@ struct RuntahMapView: View {
             CGPoint(x: center.x + r * sin(theta), y: center.y - r * cos(theta))
         }
         let sweep = segment.endAngle - segment.startAngle
-        let steps = max(1, Int(ceil(sweep / (.pi / 90)))) // ~2° resolution
+        let steps = max(1, Int(ceil(sweep / (.pi / 90))))  // ~2° resolution
         var path = Path()
         for i in 0...steps {
             let t = segment.startAngle + sweep * Double(i) / Double(steps)
@@ -145,7 +160,9 @@ struct RuntahMapView: View {
     private func handleTap(_ location: CGPoint) {
         if let segment = RadialLayoutEngine.hitTest(segments, at: location, geometry: canvasSize) {
             if let id = segment.nodeID { vm.select(id) }
-        } else if RadialLayoutEngine.isInCenterDisk(location, geometry: canvasSize, options: settings.radialLayoutOptions) {
+        } else if RadialLayoutEngine.isInCenterDisk(
+            location, geometry: canvasSize, options: settings.radialLayoutOptions)
+        {
             vm.select(vm.focusNodeID)
         }
     }
@@ -153,7 +170,9 @@ struct RuntahMapView: View {
     private func handleDoubleTap(_ location: CGPoint) {
         if let segment = RadialLayoutEngine.hitTest(segments, at: location, geometry: canvasSize) {
             if segment.isDrillable, let id = segment.nodeID { vm.drill(into: id) }
-        } else if RadialLayoutEngine.isInCenterDisk(location, geometry: canvasSize, options: settings.radialLayoutOptions) {
+        } else if RadialLayoutEngine.isInCenterDisk(
+            location, geometry: canvasSize, options: settings.radialLayoutOptions)
+        {
             vm.goToParent()
         }
     }
@@ -189,11 +208,13 @@ struct RuntahMapView: View {
 
     private var accessibilityDescription: String {
         guard let focus = vm.focusNode else { return "Runtah Map. No scan loaded." }
-        let topNames = segments
+        let topNames =
+            segments
             .filter { $0.depth == 1 && !$0.isOther }
             .prefix(5)
             .map { "\($0.displayName), \(ByteSizeFormatter.string($0.byteSize))" }
             .joined(separator: "; ")
-        return "Runtah Map for \(focus.name), total \(ByteSizeFormatter.string(vm.displaySize(focus))). Largest items: \(topNames)."
+        return
+            "Runtah Map for \(focus.name), total \(ByteSizeFormatter.string(vm.displaySize(focus))). Largest items: \(topNames)."
     }
 }

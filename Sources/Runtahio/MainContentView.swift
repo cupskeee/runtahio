@@ -34,9 +34,11 @@ struct MainContentView: View {
                 .font(.headline)
             Text(appState.mc.analyzingStatus(itemCount: vm.progress.scannedItemCount))
                 .foregroundStyle(.secondary)
-            Text("\(ByteSizeFormatter.string(vm.progress.discoveredSize)) discovered · \(vm.progress.inaccessibleCount) inaccessible")
-                .font(.callout)
-                .foregroundStyle(.tertiary)
+            Text(
+                "\(ByteSizeFormatter.string(vm.progress.discoveredSize)) discovered · \(vm.progress.inaccessibleCount) inaccessible"
+            )
+            .font(.callout)
+            .foregroundStyle(.tertiary)
             if !vm.progress.currentPath.isEmpty {
                 Text(vm.progress.currentPath)
                     .font(.caption)
@@ -77,13 +79,18 @@ struct MainContentView: View {
             }
         } else {
             HStack(spacing: 8) {
-                Button { vm.showExplorer() } label: {
+                Button {
+                    vm.showExplorer()
+                } label: {
                     Label(appState.strings.backToMap, systemImage: "chevron.left")
                 }
                 .buttonStyle(.borderless)
                 Image(systemName: vm.contentMode.systemImage).foregroundStyle(.tint)
-                Text(appState.strings.modeTitle(ContentModeKey(rawValue: vm.contentMode.rawValue) ?? .explorer))
-                    .fontWeight(.semibold)
+                Text(
+                    appState.strings.modeTitle(
+                        ContentModeKey(rawValue: vm.contentMode.rawValue) ?? .explorer)
+                )
+                .fontWeight(.semibold)
                 Spacer()
             }
             .padding(.horizontal, 12)
@@ -215,16 +222,22 @@ struct TotalsHeader: View {
     var body: some View {
         let s = appState.strings
         HStack(spacing: 18) {
-            stat(s.total, value: ByteSizeFormatter.string(vm.store.effectiveTotalSize(useAllocated: vm.useAllocated)), emphasis: true)
+            stat(
+                s.total,
+                value: ByteSizeFormatter.string(
+                    vm.store.effectiveTotalSize(useAllocated: vm.useAllocated)), emphasis: true)
             if let result = vm.lastResult {
                 stat(s.files, value: result.fileCount.formatted())
                 stat(s.folders, value: result.folderCount.formatted())
                 if result.inaccessibleCount > 0 {
-                    stat(s.inaccessible, value: result.inaccessibleCount.formatted(), color: .orange)
+                    stat(
+                        s.inaccessible, value: result.inaccessibleCount.formatted(), color: .orange)
                 }
             }
             if appState.sessionFreedBytes > 0 {
-                stat(s.freed, value: ByteSizeFormatter.string(appState.sessionFreedBytes), color: .green)
+                stat(
+                    s.freed, value: ByteSizeFormatter.string(appState.sessionFreedBytes),
+                    color: .green)
             }
             Spacer()
             if case .cancelled = vm.phase {
@@ -232,17 +245,21 @@ struct TotalsHeader: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if let result = vm.lastResult {
-                Label("Scanned in \(result.duration, format: .number.precision(.fractionLength(1)))s",
-                      systemImage: "checkmark.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Label(
+                    "Scanned in \(result.duration, format: .number.precision(.fractionLength(1)))s",
+                    systemImage: "checkmark.circle"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
     }
 
-    private func stat(_ label: String, value: String, emphasis: Bool = false, color: Color? = nil) -> some View {
+    private func stat(_ label: String, value: String, emphasis: Bool = false, color: Color? = nil)
+        -> some View
+    {
         VStack(alignment: .leading, spacing: 1) {
             Text(label).font(.caption2).foregroundStyle(.secondary)
             Text(value)

@@ -35,17 +35,21 @@ struct SettingsView: View {
 
             Section(s.safety) {
                 Toggle("Confirm before moving to Trash", isOn: $settings.confirmBeforeTrash)
-                Text("Runtahio always shows a confirmation before moving items to Trash. Files are moved to Trash — never permanently deleted.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "Runtahio always shows a confirmation before moving items to Trash. Files are moved to Trash — never permanently deleted."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
 
             Section("Recent Scans") {
-                Stepper("Keep \(settings.recentScansLimit) recent scans",
-                        value: $settings.recentScansLimit, in: 0...50)
-                    .onChange(of: settings.recentScansLimit) { _, newValue in
-                        recentScans.trim(to: newValue)
-                    }
+                Stepper(
+                    "Keep \(settings.recentScansLimit) recent scans",
+                    value: $settings.recentScansLimit, in: 0...50
+                )
+                .onChange(of: settings.recentScansLimit) { _, newValue in
+                    recentScans.trim(to: newValue)
+                }
                 Button("Clear Recent Scans") { recentScans.clear() }
                     .disabled(recentScans.entries.isEmpty)
             }
@@ -57,9 +61,11 @@ struct SettingsView: View {
                     }
                 }
                 .pickerStyle(.radioGroup)
-                Text("“System” follows your Mac's language. Bahasa Indonesia also enables the playful Sundanese status microcopy.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "“System” follows your Mac's language. Bahasa Indonesia also enables the playful Sundanese status microcopy."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
 
             Section(s.about) {
@@ -67,9 +73,11 @@ struct SettingsView: View {
                 Text(PermissionSupport.privacyNote)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("Runtahio is an original macOS storage visualizer and is not affiliated with DaisyDisk.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "Runtahio is an original macOS storage visualizer and is not affiliated with DaisyDisk."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)

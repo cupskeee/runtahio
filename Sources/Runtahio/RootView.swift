@@ -29,7 +29,9 @@ struct RootView: View {
             if phase == .active { appState.refreshVolumes() }
         }
         .overlay(alignment: .bottom) { bannerView }
-        .confirmationDialog("Move to Trash", isPresented: $appState.showTrashConfirmation, titleVisibility: .visible) {
+        .confirmationDialog(
+            "Move to Trash", isPresented: $appState.showTrashConfirmation, titleVisibility: .visible
+        ) {
             Button("Move \(appState.basket.count) to Trash", role: .destructive) {
                 Task { await appState.performTrash() }
             }
@@ -37,13 +39,19 @@ struct RootView: View {
         } message: {
             Text(trashMessage)
         }
-        .confirmationDialog("Add the scanned folder itself?", isPresented: scanRootConfirmBinding, titleVisibility: .visible) {
+        .confirmationDialog(
+            "Add the scanned folder itself?", isPresented: scanRootConfirmBinding,
+            titleVisibility: .visible
+        ) {
             Button("Add Scanned Folder", role: .destructive) { appState.confirmAddScanRoot() }
             Button("Cancel", role: .cancel) { appState.pendingScanRootConfirm = nil }
         } message: {
             Text(ConfirmReason.scanRootItself.explanation)
         }
-        .alert("Cleanup Complete", isPresented: trashSummaryBinding, presenting: appState.lastTrashSummary) { _ in
+        .alert(
+            "Cleanup Complete", isPresented: trashSummaryBinding,
+            presenting: appState.lastTrashSummary
+        ) { _ in
             Button("OK") { appState.lastTrashSummary = nil }
         } message: { summary in
             Text(summaryMessage(summary))
@@ -60,18 +68,24 @@ struct RootView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
-            Button { appState.chooseFolderAndScan() } label: {
+            Button {
+                appState.chooseFolderAndScan()
+            } label: {
                 Label("Choose Folder", systemImage: "folder.badge.plus")
             }
             .help("Choose a folder or volume to scan (⌘O)")
 
             if appState.scan.isScanning {
-                Button(role: .cancel) { appState.cancelScan() } label: {
+                Button(role: .cancel) {
+                    appState.cancelScan()
+                } label: {
                     Label("Cancel", systemImage: "stop.circle")
                 }
                 .help("Cancel the current scan")
             } else {
-                Button { appState.rescan() } label: {
+                Button {
+                    appState.rescan()
+                } label: {
                     Label("Rescan", systemImage: "arrow.clockwise")
                 }
                 .help("Rescan the current folder (⌘R)")
@@ -87,7 +101,9 @@ struct RootView: View {
             .help("Export a scan report (local only)")
             .disabled(!appState.canExport)
 
-            Button { appState.showInspector.toggle() } label: {
+            Button {
+                appState.showInspector.toggle()
+            } label: {
                 Label("Inspector", systemImage: "sidebar.right")
             }
             .help("Toggle the inspector")

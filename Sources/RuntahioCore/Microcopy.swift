@@ -69,6 +69,7 @@ public struct Microcopy: Sendable {
 
     public func trashConfirmationMessage(count: Int, totalSize: String) -> String {
         let itemWord = count == 1 ? "item" : "items"
-        return "Move \(count) \(itemWord) (\(totalSize)) to the Trash? You can recover them from the Trash."
+        return
+            "Move \(count) \(itemWord) (\(totalSize)) to the Trash? You can recover them from the Trash."
     }
 }

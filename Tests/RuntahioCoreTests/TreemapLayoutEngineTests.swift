@@ -7,15 +7,19 @@ final class TreemapLayoutEngineTests: XCTestCase {
     let options = TreemapLayoutOptions()
 
     private func sampleTree() -> DiskNode {
-        let bigdir = TestTree.dir("bigdir", parentID: "/root", depth: 1, children: [
-            TestTree.file("a1", size: 4000, parentID: "/root/bigdir", depth: 2),
-            TestTree.file("a2", size: 2000, parentID: "/root/bigdir", depth: 2),
-        ])
-        return TestTree.root("root", children: [
-            bigdir,
-            TestTree.file("f1", size: 2000, parentID: "/root", depth: 1),
-            TestTree.file("f2", size: 1000, parentID: "/root", depth: 1),
-        ])
+        let bigdir = TestTree.dir(
+            "bigdir", parentID: "/root", depth: 1,
+            children: [
+                TestTree.file("a1", size: 4000, parentID: "/root/bigdir", depth: 2),
+                TestTree.file("a2", size: 2000, parentID: "/root/bigdir", depth: 2),
+            ])
+        return TestTree.root(
+            "root",
+            children: [
+                bigdir,
+                TestTree.file("f1", size: 2000, parentID: "/root", depth: 1),
+                TestTree.file("f2", size: 1000, parentID: "/root", depth: 1),
+            ])
     }
 
     func testSquarifyConservesArea() {
@@ -67,7 +71,8 @@ final class TreemapLayoutEngineTests: XCTestCase {
         }
         let center = CGPoint(x: a2.rect.midX, y: a2.rect.midY)
         let hit = TreemapLayoutEngine.hitTest(tiles, at: center)
-        XCTAssertEqual(hit?.nodeID, "/root/bigdir/a2", "should hit the deepest tile, not its parent")
+        XCTAssertEqual(
+            hit?.nodeID, "/root/bigdir/a2", "should hit the deepest tile, not its parent")
     }
 
     func testOtherAggregation() {
@@ -75,8 +80,10 @@ final class TreemapLayoutEngineTests: XCTestCase {
         for i in 0..<60 {
             children.append(TestTree.file("tiny\(i)", size: 100, parentID: "/root", depth: 1))
         }
-        let tiles = TreemapLayoutEngine.layout(focus: TestTree.root("root", children: children), rect: rect, options: options)
-        XCTAssertTrue(tiles.contains { $0.isOther && $0.depth == 1 }, "tiny tiles should collapse into Other")
+        let tiles = TreemapLayoutEngine.layout(
+            focus: TestTree.root("root", children: children), rect: rect, options: options)
+        XCTAssertTrue(
+            tiles.contains { $0.isOther && $0.depth == 1 }, "tiny tiles should collapse into Other")
     }
 
     func testExcludingOmitsNodes() {

@@ -40,7 +40,9 @@ public enum RadialLayoutEngine {
         let disk = available * centerDiskFraction
         let rings = max(1, options.maxRings)
         let ringWidth = max(0, (available - disk) / Double(rings))
-        return Geometry(center: center, centerDiskRadius: disk, ringWidth: ringWidth, availableRadius: available)
+        return Geometry(
+            center: center, centerDiskRadius: disk, ringWidth: ringWidth, availableRadius: available
+        )
     }
 
     /// Lays out the sunburst for `focus` and its descendants.
@@ -70,12 +72,20 @@ public enum RadialLayoutEngine {
 
             let useAllocated = options.useAllocatedSize
             let children = parent.children
-                .filter { !excludingIDs.contains($0.id) && $0.effectiveSize(useAllocated: useAllocated) > 0 }
-                .sorted { $0.effectiveSize(useAllocated: useAllocated) > $1.effectiveSize(useAllocated: useAllocated) }
+                .filter {
+                    !excludingIDs.contains($0.id)
+                        && $0.effectiveSize(useAllocated: useAllocated) > 0
+                }
+                .sorted {
+                    $0.effectiveSize(useAllocated: useAllocated)
+                        > $1.effectiveSize(useAllocated: useAllocated)
+                }
             guard !children.isEmpty else { return }
 
             // drawnTotal is the sum over *included* children (so removals rescale cleanly).
-            let drawnTotal = children.reduce(0.0) { $0 + Double($1.effectiveSize(useAllocated: useAllocated)) }
+            let drawnTotal = children.reduce(0.0) {
+                $0 + Double($1.effectiveSize(useAllocated: useAllocated))
+            }
             guard drawnTotal > 0 else { return }
 
             // Partition into visible children and an aggregated "Other".
@@ -85,10 +95,10 @@ public enum RadialLayoutEngine {
                 let size = Double(child.effectiveSize(useAllocated: useAllocated))
                 let fraction = size / drawnTotal
                 let sweep = fraction * arc
-                let demote = options.collapseTiny &&
-                    (rank >= options.maxChildrenPerRing ||
-                     fraction < options.minFraction ||
-                     sweep < options.minSweepRadians)
+                let demote =
+                    options.collapseTiny
+                    && (rank >= options.maxChildrenPerRing || fraction < options.minFraction
+                        || sweep < options.minSweepRadians)
                 if demote {
                     otherSize += size
                 } else {
@@ -109,22 +119,23 @@ public enum RadialLayoutEngine {
                 let isLast = (drawIndex == lastIndex)
                 let segEnd = isLast ? end : cursor + (size / drawnTotal) * arc
                 let category = FileCategory.category(for: child)
-                segments.append(RadialSegment(
-                    id: makeID(),
-                    nodeID: child.id,
-                    parentNodeID: parent.id,
-                    startAngle: cursor,
-                    endAngle: segEnd,
-                    innerRadius: inner,
-                    outerRadius: outer,
-                    depth: depth,
-                    byteSize: child.effectiveSize(useAllocated: useAllocated),
-                    displayName: child.name,
-                    hue: category.hue,
-                    category: category,
-                    isOther: false,
-                    isDrillable: child.isContainer
-                ))
+                segments.append(
+                    RadialSegment(
+                        id: makeID(),
+                        nodeID: child.id,
+                        parentNodeID: parent.id,
+                        startAngle: cursor,
+                        endAngle: segEnd,
+                        innerRadius: inner,
+                        outerRadius: outer,
+                        depth: depth,
+                        byteSize: child.effectiveSize(useAllocated: useAllocated),
+                        displayName: child.name,
+                        hue: category.hue,
+                        category: category,
+                        isOther: false,
+                        isDrillable: child.isContainer
+                    ))
                 // Recurse into drillable children within their own sub-arc.
                 if child.isContainer {
                     place(parent: child, start: cursor, end: segEnd, depth: depth + 1)
@@ -134,22 +145,23 @@ public enum RadialLayoutEngine {
             }
 
             if otherSize > 0, segments.count < options.maxSegments {
-                segments.append(RadialSegment(
-                    id: makeID(),
-                    nodeID: nil,
-                    parentNodeID: parent.id,
-                    startAngle: cursor,
-                    endAngle: end, // Other always closes the parent arc exactly.
-                    innerRadius: inner,
-                    outerRadius: outer,
-                    depth: depth,
-                    byteSize: Int64(otherSize),
-                    displayName: "Other",
-                    hue: FileCategory.other.hue,
-                    category: .other,
-                    isOther: true,
-                    isDrillable: false
-                ))
+                segments.append(
+                    RadialSegment(
+                        id: makeID(),
+                        nodeID: nil,
+                        parentNodeID: parent.id,
+                        startAngle: cursor,
+                        endAngle: end,  // Other always closes the parent arc exactly.
+                        innerRadius: inner,
+                        outerRadius: outer,
+                        depth: depth,
+                        byteSize: Int64(otherSize),
+                        displayName: "Other",
+                        hue: FileCategory.other.hue,
+                        category: .other,
+                        isOther: true,
+                        isDrillable: false
+                    ))
             }
         }
 
@@ -168,12 +180,13 @@ public enum RadialLayoutEngine {
         let dx = Double(point.x - center.x)
         let dy = Double(point.y - center.y)
         let r = (dx * dx + dy * dy).squareRoot()
-        var theta = atan2(dx, -dy)            // 0 at top, clockwise
-        if theta < 0 { theta += 2 * .pi }     // normalize to [0, 2π)
+        var theta = atan2(dx, -dy)  // 0 at top, clockwise
+        if theta < 0 { theta += 2 * .pi }  // normalize to [0, 2π)
 
         for seg in segments {
             if r >= seg.innerRadius, r < seg.outerRadius,
-               theta >= seg.startAngle, theta < seg.endAngle {
+                theta >= seg.startAngle, theta < seg.endAngle
+            {
                 return seg
             }
         }

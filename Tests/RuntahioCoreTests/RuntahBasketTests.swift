@@ -5,7 +5,9 @@ import XCTest
 final class RuntahBasketTests: XCTestCase {
     let policy = ProtectedPathPolicy(homeDirectory: URL(fileURLWithPath: "/Users/tester"))
 
-    private func node(_ path: String, size: Int64, allocated: Int64? = nil, type: NodeType = .file) -> DiskNode {
+    private func node(_ path: String, size: Int64, allocated: Int64? = nil, type: NodeType = .file)
+        -> DiskNode
+    {
         let comps = path.split(separator: "/").map(String.init)
         let name = comps.last ?? path
         let parent = "/" + comps.dropLast().joined(separator: "/")
@@ -19,7 +21,8 @@ final class RuntahBasketTests: XCTestCase {
 
     func testAddSingleItem() {
         let basket = RuntahBasket()
-        let result = basket.add(node("/Users/tester/Documents/a.txt", size: 1000), policy: policy, scanRoot: nil)
+        let result = basket.add(
+            node("/Users/tester/Documents/a.txt", size: 1000), policy: policy, scanRoot: nil)
         XCTAssertEqual(result, .added)
         XCTAssertEqual(basket.count, 1)
         XCTAssertEqual(basket.totalReclaimable, 1000)
@@ -35,19 +38,31 @@ final class RuntahBasketTests: XCTestCase {
 
     func testChildUnderExistingParentRejected() {
         let basket = RuntahBasket()
-        XCTAssertEqual(basket.add(node("/Users/tester/Documents/folder", size: 5000, type: .directory),
-                                  policy: policy, scanRoot: nil), .added)
-        XCTAssertEqual(basket.add(node("/Users/tester/Documents/folder/child.txt", size: 100),
-                                  policy: policy, scanRoot: nil), .nestedUnderExisting)
+        XCTAssertEqual(
+            basket.add(
+                node("/Users/tester/Documents/folder", size: 5000, type: .directory),
+                policy: policy, scanRoot: nil), .added)
+        XCTAssertEqual(
+            basket.add(
+                node("/Users/tester/Documents/folder/child.txt", size: 100),
+                policy: policy, scanRoot: nil), .nestedUnderExisting)
         XCTAssertEqual(basket.count, 1)
         XCTAssertEqual(basket.totalReclaimable, 5000)
     }
 
     func testParentAbsorbsExistingChildren() {
         let basket = RuntahBasket()
-        XCTAssertEqual(basket.add(node("/Users/tester/Documents/folder/a.txt", size: 100), policy: policy, scanRoot: nil), .added)
-        XCTAssertEqual(basket.add(node("/Users/tester/Documents/folder/b.txt", size: 200), policy: policy, scanRoot: nil), .added)
-        let result = basket.add(node("/Users/tester/Documents/folder", size: 5000, type: .directory), policy: policy, scanRoot: nil)
+        XCTAssertEqual(
+            basket.add(
+                node("/Users/tester/Documents/folder/a.txt", size: 100), policy: policy,
+                scanRoot: nil), .added)
+        XCTAssertEqual(
+            basket.add(
+                node("/Users/tester/Documents/folder/b.txt", size: 200), policy: policy,
+                scanRoot: nil), .added)
+        let result = basket.add(
+            node("/Users/tester/Documents/folder", size: 5000, type: .directory), policy: policy,
+            scanRoot: nil)
         XCTAssertEqual(result, .absorbedDescendants(2))
         XCTAssertEqual(basket.count, 1)
         XCTAssertEqual(basket.totalReclaimable, 5000)
@@ -62,7 +77,9 @@ final class RuntahBasketTests: XCTestCase {
 
     func testProtectedPathRejected() {
         let basket = RuntahBasket()
-        let result = basket.add(node("/Library/Caches/big", size: 9999, type: .directory), policy: policy, scanRoot: nil)
+        let result = basket.add(
+            node("/Library/Caches/big", size: 9999, type: .directory), policy: policy, scanRoot: nil
+        )
         XCTAssertEqual(result, .rejectedProtected(.systemDomain))
         XCTAssertTrue(basket.isEmpty)
     }
@@ -71,9 +88,11 @@ final class RuntahBasketTests: XCTestCase {
         let basket = RuntahBasket()
         let root = node("/Users/tester/Projects", size: 4242, type: .directory)
         let scanRoot = URL(fileURLWithPath: "/Users/tester/Projects")
-        XCTAssertEqual(basket.add(root, policy: policy, scanRoot: scanRoot), .needsConfirm(.scanRootItself))
+        XCTAssertEqual(
+            basket.add(root, policy: policy, scanRoot: scanRoot), .needsConfirm(.scanRootItself))
         XCTAssertTrue(basket.isEmpty)
-        XCTAssertEqual(basket.add(root, policy: policy, scanRoot: scanRoot, confirmedScanRoot: true), .added)
+        XCTAssertEqual(
+            basket.add(root, policy: policy, scanRoot: scanRoot, confirmedScanRoot: true), .added)
         XCTAssertEqual(basket.count, 1)
     }
 
@@ -92,7 +111,8 @@ final class RuntahBasketTests: XCTestCase {
     func testReclaimableUsesAllocatedWhenEnabled() {
         let basket = RuntahBasket()
         basket.useAllocatedForReclaimable = true
-        basket.add(node("/Users/tester/a.bin", size: 1000, allocated: 4096), policy: policy, scanRoot: nil)
+        basket.add(
+            node("/Users/tester/a.bin", size: 1000, allocated: 4096), policy: policy, scanRoot: nil)
         XCTAssertEqual(basket.totalReclaimable, 4096)
     }
 

@@ -33,7 +33,9 @@ struct NodeContextMenu: View {
 
     var body: some View {
         if node.isContainer {
-            Button("Drill Into") { vm.showExplorer(); vm.drill(into: node.id) }
+            Button("Drill Into") {
+                vm.showExplorer(); vm.drill(into: node.id)
+            }
             Divider()
         } else if vm.contentMode != .explorer {
             Button("Reveal in Map") { revealInMap() }

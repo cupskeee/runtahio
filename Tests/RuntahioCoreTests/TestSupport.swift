@@ -4,7 +4,10 @@ import XCTest
 
 /// Builders for synthetic `DiskNode` trees (no filesystem needed) and on-disk fixtures.
 enum TestTree {
-    static func file(_ name: String, size: Int64, parentID: String, depth: Int, ext: String? = nil, modified: Date? = nil) -> DiskNode {
+    static func file(
+        _ name: String, size: Int64, parentID: String, depth: Int, ext: String? = nil,
+        modified: Date? = nil
+    ) -> DiskNode {
         let id = parentID + "/" + name
         return DiskNode(
             id: id, parentID: parentID, name: name, url: URL(fileURLWithPath: id),
@@ -14,17 +17,23 @@ enum TestTree {
             fileCount: 0, folderCount: 0, inaccessibleCount: 0, scanError: nil)
     }
 
-    static func dir(_ name: String, parentID: String, depth: Int, children: [DiskNode]) -> DiskNode {
+    static func dir(_ name: String, parentID: String, depth: Int, children: [DiskNode]) -> DiskNode
+    {
         let id = parentID + "/" + name
-        return container(id: id, name: name, parentID: parentID, depth: depth, type: .directory, children: children)
+        return container(
+            id: id, name: name, parentID: parentID, depth: depth, type: .directory,
+            children: children)
     }
 
     static func root(_ name: String, children: [DiskNode]) -> DiskNode {
-        container(id: "/" + name, name: name, parentID: nil, depth: 0, type: .directory, children: children)
+        container(
+            id: "/" + name, name: name, parentID: nil, depth: 0, type: .directory,
+            children: children)
     }
 
     private static func container(
-        id: String, name: String, parentID: String?, depth: Int, type: NodeType, children: [DiskNode]
+        id: String, name: String, parentID: String?, depth: Int, type: NodeType,
+        children: [DiskNode]
     ) -> DiskNode {
         let byteSize = children.reduce(Int64(0)) { $0 + $1.byteSize }
         let allocated = children.reduce(Int64(0)) { $0 + $1.allocatedSize }
@@ -99,7 +108,9 @@ enum TempFixture {
 
 /// Drives a scan to completion and returns the terminal outcome plus collected progress.
 extension ScannerService {
-    func scanToCompletion(root: URL, options: ScanOptions) async -> (result: ScanResult?, failure: ScanError?, progressCount: Int) {
+    func scanToCompletion(root: URL, options: ScanOptions) async -> (
+        result: ScanResult?, failure: ScanError?, progressCount: Int
+    ) {
         var result: ScanResult?
         var failure: ScanError?
         var progressCount = 0

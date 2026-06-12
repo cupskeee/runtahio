@@ -13,13 +13,14 @@ final class ScannerServiceTests: XCTestCase {
         _ = try TempFixture.makeDir("empty", in: root)
 
         let scanner = ScannerService()
-        let (result, failure, _) = await scanner.scanToCompletion(root: root, options: ScanOptions())
+        let (result, failure, _) = await scanner.scanToCompletion(
+            root: root, options: ScanOptions())
 
         XCTAssertNil(failure)
         let r = try XCTUnwrap(result)
         XCTAssertEqual(r.totalSize, 6000)
         XCTAssertEqual(r.fileCount, 3)
-        XCTAssertEqual(r.folderCount, 2) // sub + empty
+        XCTAssertEqual(r.folderCount, 2)  // sub + empty
         XCTAssertEqual(r.inaccessibleCount, 0)
         XCTAssertGreaterThanOrEqual(r.allocatedTotal, r.totalSize)
 
@@ -130,7 +131,8 @@ final class ScannerServiceTests: XCTestCase {
             root: root, options: ScanOptions(treatPackagesAsFolders: true))
         let folder = try XCTUnwrap(folderResult)
         let drillable = try XCTUnwrap(folder.rootNode.children.first { $0.name == "Thing.app" })
-        XCTAssertFalse(drillable.children.isEmpty, "package drillable when treatPackagesAsFolders is on")
+        XCTAssertFalse(
+            drillable.children.isEmpty, "package drillable when treatPackagesAsFolders is on")
         XCTAssertEqual(drillable.byteSize, 400)
     }
 
@@ -143,16 +145,19 @@ final class ScannerServiceTests: XCTestCase {
         try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: locked.path)
 
         let scanner = ScannerService()
-        let (result, failure, _) = await scanner.scanToCompletion(root: root, options: ScanOptions())
+        let (result, failure, _) = await scanner.scanToCompletion(
+            root: root, options: ScanOptions())
 
         // Restore permissions so the fixture can be torn down.
-        try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: locked.path)
+        try? FileManager.default.setAttributes(
+            [.posixPermissions: 0o755], ofItemAtPath: locked.path)
 
         XCTAssertNil(failure)
         let r = try XCTUnwrap(result)
         XCTAssertGreaterThanOrEqual(r.inaccessibleCount, 1)
-        XCTAssertTrue(r.rootNode.children.contains { $0.name == "readable.txt" },
-                      "siblings of an inaccessible directory keep scanning")
+        XCTAssertTrue(
+            r.rootNode.children.contains { $0.name == "readable.txt" },
+            "siblings of an inaccessible directory keep scanning")
         let lockedNode = try XCTUnwrap(r.rootNode.children.first { $0.name == "locked" })
         XCTAssertEqual(lockedNode.type, .inaccessible)
         XCTAssertNotNil(lockedNode.scanError)
@@ -180,7 +185,9 @@ final class ScannerServiceTests: XCTestCase {
         // Break out of the stream on the first progress event → cancels the worker.
         let consume = Task { () -> Bool in
             var sawProgress = false
-            for await event in await scanner.scan(root: root, options: ScanOptions(emitEveryNItems: 4)) {
+            for await event in await scanner.scan(
+                root: root, options: ScanOptions(emitEveryNItems: 4))
+            {
                 if case .progress = event { sawProgress = true; break }
             }
             return sawProgress

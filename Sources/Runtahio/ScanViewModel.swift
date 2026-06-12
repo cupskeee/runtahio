@@ -57,7 +57,9 @@ final class ScanViewModel {
     var searchText = ""
     var foldersFirst = false
     var contentMode: ContentMode = .explorer
-    var sortOrder: [KeyPathComparator<DiskNode>] = [KeyPathComparator(\DiskNode.byteSize, order: .reverse)]
+    var sortOrder: [KeyPathComparator<DiskNode>] = [
+        KeyPathComparator(\DiskNode.byteSize, order: .reverse)
+    ]
     var lastResult: ScanResult?
     /// Direction of the most recent navigation, used to pick the drill animation.
     var lastNavWasDrillIn = true
@@ -151,7 +153,9 @@ final class ScanViewModel {
 
     // MARK: Sizes
 
-    func displaySize(_ node: DiskNode) -> Int64 { store.effectiveSize(of: node, useAllocated: useAllocated) }
+    func displaySize(_ node: DiskNode) -> Int64 {
+        store.effectiveSize(of: node, useAllocated: useAllocated)
+    }
 
     // MARK: Table data
 

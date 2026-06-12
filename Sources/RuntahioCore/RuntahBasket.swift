@@ -12,7 +12,9 @@ public struct BasketItem: Identifiable, Sendable, Equatable, Hashable {
     public let allocatedSize: Int64
     public let type: NodeType
 
-    public init(id: String, name: String, url: URL, byteSize: Int64, allocatedSize: Int64, type: NodeType) {
+    public init(
+        id: String, name: String, url: URL, byteSize: Int64, allocatedSize: Int64, type: NodeType
+    ) {
         self.id = id
         self.name = name
         self.url = url
@@ -22,8 +24,9 @@ public struct BasketItem: Identifiable, Sendable, Equatable, Hashable {
     }
 
     public init(node: DiskNode) {
-        self.init(id: node.id, name: node.name, url: node.url,
-                  byteSize: node.byteSize, allocatedSize: node.allocatedSize, type: node.type)
+        self.init(
+            id: node.id, name: node.name, url: node.url,
+            byteSize: node.byteSize, allocatedSize: node.allocatedSize, type: node.type)
     }
 
     /// Size used for reclaimable totals. Allocated size reflects what Trash actually frees.
@@ -124,7 +127,10 @@ public final class RuntahBasket {
     /// The largest few items, for the confirmation dialog.
     public func largestItems(limit: Int) -> [BasketItem] {
         maximalItems()
-            .sorted { $0.effectiveSize(useAllocated: useAllocatedForReclaimable) > $1.effectiveSize(useAllocated: useAllocatedForReclaimable) }
+            .sorted {
+                $0.effectiveSize(useAllocated: useAllocatedForReclaimable)
+                    > $1.effectiveSize(useAllocated: useAllocatedForReclaimable)
+            }
             .prefix(limit)
             .map { $0 }
     }

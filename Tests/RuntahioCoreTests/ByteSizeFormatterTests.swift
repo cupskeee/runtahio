@@ -20,7 +20,8 @@ final class ByteSizeFormatterTests: XCTestCase {
     }
 
     func testSharedConvenienceMatchesInstance() {
-        XCTAssertEqual(ByteSizeFormatter.string(1_500_000),
-                       ByteSizeFormatter.shared.string(fromByteCount: 1_500_000))
+        XCTAssertEqual(
+            ByteSizeFormatter.string(1_500_000),
+            ByteSizeFormatter.shared.string(fromByteCount: 1_500_000))
     }
 }

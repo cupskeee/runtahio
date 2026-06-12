@@ -48,8 +48,7 @@ struct FileTableView: View {
             }
         } primaryAction: { ids in
             if let id = ids.first, let node = vm.store.node(id: id) {
-                if node.isContainer { vm.drill(into: id) }
-                else { FileActions.quickLook(node.url) }
+                if node.isContainer { vm.drill(into: id) } else { FileActions.quickLook(node.url) }
             }
         }
         .overlay {

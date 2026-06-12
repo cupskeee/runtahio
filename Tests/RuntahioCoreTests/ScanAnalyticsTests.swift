@@ -6,15 +6,27 @@ final class ScanAnalyticsTests: XCTestCase {
         let d0 = Date(timeIntervalSince1970: 1_000)
         let d1 = Date(timeIntervalSince1970: 2_000)
         let d2 = Date(timeIntervalSince1970: 3_000)
-        let media = TestTree.dir("media", parentID: "/root", depth: 1, children: [
-            TestTree.file("movie.mp4", size: 5_000, parentID: "/root/media", depth: 2, ext: "mp4", modified: d2),
-            TestTree.file("song.mp3", size: 1_000, parentID: "/root/media", depth: 2, ext: "mp3", modified: d0),
-        ])
-        let docs = TestTree.dir("docs", parentID: "/root", depth: 1, children: [
-            TestTree.file("report.pdf", size: 3_000, parentID: "/root/docs", depth: 2, ext: "pdf", modified: d1),
-            // A duplicate of media/song.mp3 (same name + size) in another folder.
-            TestTree.file("song.mp3", size: 1_000, parentID: "/root/docs", depth: 2, ext: "mp3", modified: d1),
-        ])
+        let media = TestTree.dir(
+            "media", parentID: "/root", depth: 1,
+            children: [
+                TestTree.file(
+                    "movie.mp4", size: 5_000, parentID: "/root/media", depth: 2, ext: "mp4",
+                    modified: d2),
+                TestTree.file(
+                    "song.mp3", size: 1_000, parentID: "/root/media", depth: 2, ext: "mp3",
+                    modified: d0),
+            ])
+        let docs = TestTree.dir(
+            "docs", parentID: "/root", depth: 1,
+            children: [
+                TestTree.file(
+                    "report.pdf", size: 3_000, parentID: "/root/docs", depth: 2, ext: "pdf",
+                    modified: d1),
+                // A duplicate of media/song.mp3 (same name + size) in another folder.
+                TestTree.file(
+                    "song.mp3", size: 1_000, parentID: "/root/docs", depth: 2, ext: "mp3",
+                    modified: d1),
+            ])
         return TestTree.root("root", children: [media, docs])
     }
 
@@ -25,7 +37,8 @@ final class ScanAnalyticsTests: XCTestCase {
     }
 
     func testLargestFilesRespectsLimit() {
-        XCTAssertEqual(ScanAnalytics.largestFiles(in: sampleTree(), limit: 1, useAllocated: false).count, 1)
+        XCTAssertEqual(
+            ScanAnalytics.largestFiles(in: sampleTree(), limit: 1, useAllocated: false).count, 1)
     }
 
     func testOldestFiles() {
@@ -37,7 +50,8 @@ final class ScanAnalyticsTests: XCTestCase {
 
     func testOldestFilesMinSizeFilter() {
         // Only files >= 3000 bytes; the oldest such is report.pdf (3000, t=2000).
-        let oldest = ScanAnalytics.oldestFiles(in: sampleTree(), limit: 5, minSize: 3_000, useAllocated: false)
+        let oldest = ScanAnalytics.oldestFiles(
+            in: sampleTree(), limit: 5, minSize: 3_000, useAllocated: false)
         XCTAssertEqual(oldest.map(\.byteSize), [3_000, 5_000])
     }
 
@@ -45,7 +59,7 @@ final class ScanAnalyticsTests: XCTestCase {
         let breakdown = ScanAnalytics.categoryBreakdown(in: sampleTree(), useAllocated: false)
         let byCategory = Dictionary(uniqueKeysWithValues: breakdown.map { ($0.category, $0) })
         XCTAssertEqual(byCategory[.video]?.totalSize, 5_000)
-        XCTAssertEqual(byCategory[.audio]?.totalSize, 2_000)   // two song.mp3 of 1000 each
+        XCTAssertEqual(byCategory[.audio]?.totalSize, 2_000)  // two song.mp3 of 1000 each
         XCTAssertEqual(byCategory[.audio]?.fileCount, 2)
         XCTAssertEqual(byCategory[.document]?.totalSize, 3_000)
         // Sorted by total size descending.
@@ -59,7 +73,7 @@ final class ScanAnalyticsTests: XCTestCase {
         XCTAssertEqual(group?.name, "song.mp3")
         XCTAssertEqual(group?.size, 1_000)
         XCTAssertEqual(group?.count, 2)
-        XCTAssertEqual(group?.reclaimable, 1_000)   // keep one, reclaim one
+        XCTAssertEqual(group?.reclaimable, 1_000)  // keep one, reclaim one
         XCTAssertEqual(group?.extras.count, 1)
     }
 
@@ -77,7 +91,7 @@ final class ScanAnalyticsTests: XCTestCase {
 
     func testLeavesExcludeContainersAndInaccessible() {
         let leaves = ScanAnalytics.leaves(in: sampleTree())
-        XCTAssertEqual(leaves.count, 4) // movie, song, report, dup-song
+        XCTAssertEqual(leaves.count, 4)  // movie, song, report, dup-song
         XCTAssertFalse(leaves.contains { $0.type == .directory })
     }
 }

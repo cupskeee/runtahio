@@ -5,7 +5,8 @@ final class ScanReportExporterTests: XCTestCase {
     private func sampleResult(rootName: String = "root", extraFile: DiskNode? = nil) -> ScanResult {
         var children = [
             TestTree.file("movie.mp4", size: 5_000, parentID: "/\(rootName)", depth: 1, ext: "mp4"),
-            TestTree.file("report.pdf", size: 3_000, parentID: "/\(rootName)", depth: 1, ext: "pdf"),
+            TestTree.file(
+                "report.pdf", size: 3_000, parentID: "/\(rootName)", depth: 1, ext: "pdf"),
         ]
         if let extraFile { children.append(extraFile) }
         return TestTree.result(root: TestTree.root(rootName, children: children))
@@ -30,16 +31,19 @@ final class ScanReportExporterTests: XCTestCase {
         let csv = ScanReportExporter.csv(sampleResult(), useAllocated: false, topFilesLimit: 10)
         let lines = csv.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
         XCTAssertEqual(lines.first, "Path,Size (bytes),Kind,Modified")
-        XCTAssertEqual(lines.count, 3) // header + 2 files
+        XCTAssertEqual(lines.count, 3)  // header + 2 files
         XCTAssertTrue(lines[1].contains("/root/movie.mp4"))
         XCTAssertTrue(lines[1].contains("5000"))
     }
 
     func testCSVQuotesFieldsWithCommas() {
-        let comma = TestTree.file("weird, name.txt", size: 9_999, parentID: "/root", depth: 1, ext: "txt")
-        let csv = ScanReportExporter.csv(sampleResult(extraFile: comma), useAllocated: false, topFilesLimit: 10)
-        XCTAssertTrue(csv.contains("\"/root/weird, name.txt\""),
-                      "paths with commas must be quoted: \(csv)")
+        let comma = TestTree.file(
+            "weird, name.txt", size: 9_999, parentID: "/root", depth: 1, ext: "txt")
+        let csv = ScanReportExporter.csv(
+            sampleResult(extraFile: comma), useAllocated: false, topFilesLimit: 10)
+        XCTAssertTrue(
+            csv.contains("\"/root/weird, name.txt\""),
+            "paths with commas must be quoted: \(csv)")
     }
 
     func testEscapeCSVDoublesQuotes() {

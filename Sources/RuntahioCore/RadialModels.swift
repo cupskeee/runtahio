@@ -18,15 +18,15 @@ public enum FileCategory: String, Sendable, CaseIterable {
     /// DaisyDisk-style bright orange ring. The view modulates lightness by depth.
     public var hue: Double {
         switch self {
-        case .folder:   return 0.55 // teal
-        case .image:    return 0.45 // seafoam green
-        case .video:    return 0.62 // periwinkle blue
-        case .audio:    return 0.78 // soft plum
-        case .document: return 0.58 // slate blue
-        case .code:     return 0.83 // muted magenta
-        case .archive:  return 0.10 // warm sand (sparingly)
-        case .app:      return 0.50 // cyan
-        case .other:    return 0.0  // neutral gray (saturation handled in view)
+        case .folder: return 0.55  // teal
+        case .image: return 0.45  // seafoam green
+        case .video: return 0.62  // periwinkle blue
+        case .audio: return 0.78  // soft plum
+        case .document: return 0.58  // slate blue
+        case .code: return 0.83  // muted magenta
+        case .archive: return 0.10  // warm sand (sparingly)
+        case .app: return 0.50  // cyan
+        case .other: return 0.0  // neutral gray (saturation handled in view)
         }
     }
 
@@ -76,30 +76,30 @@ public enum FileCategory: String, Sendable, CaseIterable {
 
     private static let imageExts: Set<String> = [
         "jpg", "jpeg", "png", "gif", "heic", "heif", "tiff", "tif", "bmp", "webp",
-        "raw", "cr2", "nef", "arw", "dng", "psd", "svg", "ico", "icns"
+        "raw", "cr2", "nef", "arw", "dng", "psd", "svg", "ico", "icns",
     ]
     private static let videoExts: Set<String> = [
         "mov", "mp4", "m4v", "avi", "mkv", "wmv", "flv", "webm", "mpg", "mpeg",
-        "3gp", "prores", "hevc"
+        "3gp", "prores", "hevc",
     ]
     private static let audioExts: Set<String> = [
-        "mp3", "aac", "m4a", "wav", "aiff", "aif", "flac", "ogg", "wma", "alac", "caf"
+        "mp3", "aac", "m4a", "wav", "aiff", "aif", "flac", "ogg", "wma", "alac", "caf",
     ]
     private static let documentExts: Set<String> = [
         "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "pages", "numbers",
-        "key", "txt", "rtf", "md", "csv", "epub", "odt", "ods"
+        "key", "txt", "rtf", "md", "csv", "epub", "odt", "ods",
     ]
     private static let codeExts: Set<String> = [
         "swift", "c", "cpp", "h", "hpp", "m", "mm", "java", "kt", "py", "rb", "js",
         "ts", "tsx", "jsx", "go", "rs", "php", "html", "css", "json", "xml", "yaml",
-        "yml", "sh", "pl", "sql", "toml", "gradle"
+        "yml", "sh", "pl", "sql", "toml", "gradle",
     ]
     private static let archiveExts: Set<String> = [
         "zip", "tar", "gz", "tgz", "bz2", "xz", "7z", "rar", "dmg", "pkg", "iso",
-        "jar", "war", "cab"
+        "jar", "war", "cab",
     ]
     private static let appExts: Set<String> = [
-        "app", "xpc", "framework", "bundle", "plugin", "kext", "appex"
+        "app", "xpc", "framework", "bundle", "plugin", "kext", "appex",
     ]
 }
 

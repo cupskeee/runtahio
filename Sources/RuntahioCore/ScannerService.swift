@@ -16,7 +16,7 @@ public actor ScannerService {
     private static let resourceKeys: Set<URLResourceKey> = [
         .nameKey, .isDirectoryKey, .isSymbolicLinkKey, .isPackageKey, .isRegularFileKey,
         .isHiddenKey, .isReadableKey, .fileSizeKey, .totalFileAllocatedSizeKey,
-        .fileAllocatedSizeKey, .contentModificationDateKey, .creationDateKey, .isAliasFileKey
+        .fileAllocatedSizeKey, .contentModificationDateKey, .creationDateKey, .isAliasFileKey,
     ]
 
     /// Begins a scan. The returned stream's `onTermination` cancels the worker, so
@@ -67,7 +67,8 @@ public actor ScannerService {
 
         func emitProgress(force: Bool = false) {
             let now = ContinuousClock.now
-            let dueByCount = options.emitEveryNItems > 0
+            let dueByCount =
+                options.emitEveryNItems > 0
                 && progress.scannedItemCount % options.emitEveryNItems == 0
             let dueByTime = now - lastEmit >= interval
             guard force || dueByCount || dueByTime else { return }
@@ -76,10 +77,12 @@ public actor ScannerService {
         }
 
         func makeInaccessible(_ url: URL, parentID: String?, depth: Int, error: Error) -> DiskNode {
-            let scanError = ScanError.classify(error, underProtectedPrefix: needsFullDiskAccess(url))
+            let scanError = ScanError.classify(
+                error, underProtectedPrefix: needsFullDiskAccess(url))
             if scanError == .deviceGone, !didWarnDeviceGone {
                 didWarnDeviceGone = true
-                warnings.append("A volume became unavailable during the scan; some sizes may be incomplete.")
+                warnings.append(
+                    "A volume became unavailable during the scan; some sizes may be incomplete.")
             }
             progress.inaccessibleCount += 1
             return DiskNode(
@@ -87,7 +90,8 @@ public actor ScannerService {
                 type: .inaccessible, depth: depth, isHidden: false, isReadable: false,
                 isPackage: false, isSymlink: false, fileExtension: nil,
                 modifiedDate: nil, createdDate: nil, byteSize: 0, allocatedSize: 0,
-                children: [], fileCount: 0, folderCount: 0, inaccessibleCount: 0, scanError: scanError
+                children: [], fileCount: 0, folderCount: 0, inaccessibleCount: 0,
+                scanError: scanError
             )
         }
 
@@ -122,7 +126,8 @@ public actor ScannerService {
                 let isSymlink = v?.isSymbolicLink ?? false
                 let isDir = v?.isDirectory ?? false
                 let logical = Int64(v?.fileSize ?? 0)
-                let allocated = Int64(v?.totalFileAllocatedSize ?? v?.fileAllocatedSize ?? v?.fileSize ?? 0)
+                let allocated = Int64(
+                    v?.totalFileAllocatedSize ?? v?.fileAllocatedSize ?? v?.fileSize ?? 0)
                 if isDir && !isSymlink {
                     let sub = try measure(entry, depth: depth + 1)
                     m.logical += sub.logical; m.allocated += sub.allocated
@@ -141,7 +146,7 @@ public actor ScannerService {
             switch node.type {
             case .file, .symlink, .unknown: progress.scannedFileCount += 1
             case .directory, .package: progress.scannedFolderCount += 1
-            case .inaccessible: break // already tallied in makeInaccessible
+            case .inaccessible: break  // already tallied in makeInaccessible
             }
             if let leafSize { progress.discoveredSize += leafSize }
             progress.currentPath = node.url.path(percentEncoded: false)
@@ -161,8 +166,10 @@ public actor ScannerService {
                 values = try url.resourceValues(forKeys: resourceKeys)
             } catch {
                 let nsError = error as NSError
-                if nsError.code == NSFileReadNoSuchFileError || nsError.code == NSFileNoSuchFileError {
-                    return nil // vanished during scan
+                if nsError.code == NSFileReadNoSuchFileError
+                    || nsError.code == NSFileNoSuchFileError
+                {
+                    return nil  // vanished during scan
                 }
                 return makeInaccessible(url, parentID: parentID, depth: depth, error: error)
             }
@@ -179,7 +186,8 @@ public actor ScannerService {
             let modified = values.contentModificationDate
             let created = values.creationDate
             let logicalSize = Int64(values.fileSize ?? 0)
-            let allocatedSize = Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
+            let allocatedSize = Int64(
+                values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? values.fileSize ?? 0)
 
             // 1) Symlink — tested first (probe: symlinks also report isAlias). Never descend.
             if isSymlink {
@@ -196,9 +204,9 @@ public actor ScannerService {
             // 2) Package presented as a leaf (unless treatPackagesAsFolders) — measured.
             if isPackage && !options.treatPackagesAsFolders {
                 var m = Measurement()
-                do { m = try measure(url, depth: depth) }
-                catch is Cancelled { throw Cancelled() }
-                catch { /* keep zero measurement */ }
+                do { m = try measure(url, depth: depth) } catch is Cancelled {
+                    throw Cancelled()
+                } catch { /* keep zero measurement */  }
                 let node = DiskNode(
                     id: id, parentID: parentID, name: name, url: url, type: .package, depth: depth,
                     isHidden: isHidden, isReadable: isReadable, isPackage: true, isSymlink: false,
@@ -239,15 +247,17 @@ public actor ScannerService {
                 let byteSize = children.reduce(Int64(0)) { $0 + $1.byteSize }
                 let allocated = children.reduce(Int64(0)) { $0 + $1.allocatedSize }
                 let counts = childCounts(children)
-                let type: NodeType = (isPackage && options.treatPackagesAsFolders) ? .package : .directory
+                let type: NodeType =
+                    (isPackage && options.treatPackagesAsFolders) ? .package : .directory
                 let node = DiskNode(
                     id: id, parentID: parentID, name: name, url: url, type: type, depth: depth,
-                    isHidden: isHidden, isReadable: isReadable, isPackage: isPackage, isSymlink: false,
+                    isHidden: isHidden, isReadable: isReadable, isPackage: isPackage,
+                    isSymlink: false,
                     fileExtension: ext, modifiedDate: modified, createdDate: created,
                     byteSize: byteSize, allocatedSize: allocated, children: children,
                     fileCount: counts.file, folderCount: counts.folder,
                     inaccessibleCount: counts.inaccessible, scanError: nil)
-                register(node, leafSize: nil) // container size already counted via leaves
+                register(node, leafSize: nil)  // container size already counted via leaves
                 return node
             }
 
@@ -324,7 +334,7 @@ public actor ScannerService {
             "/Library/Mail", "/Library/Messages", "/Library/Safari",
             "/Library/Suggestions", "/Library/Cookies", "/Library/HomeKit",
             "/Library/Containers/com.apple",
-            "/System/", "/private/var/db", "/Library/Application Support/MobileSync"
+            "/System/", "/private/var/db", "/Library/Application Support/MobileSync",
         ]
         if protectedFragments.contains(where: { path.contains($0) }) { return true }
         // ~/Library/<protected> areas.

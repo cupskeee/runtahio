@@ -42,12 +42,16 @@ public final class AppSettings {
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.showHidden = defaults.object(forKey: Keys.showHidden) as? Bool ?? true
-        self.treatPackagesAsFolders = defaults.object(forKey: Keys.treatPackagesAsFolders) as? Bool ?? false
+        self.treatPackagesAsFolders =
+            defaults.object(forKey: Keys.treatPackagesAsFolders) as? Bool ?? false
         self.useAllocatedSize = defaults.object(forKey: Keys.useAllocatedSize) as? Bool ?? false
-        self.collapseTinySegments = defaults.object(forKey: Keys.collapseTinySegments) as? Bool ?? true
-        self.minSegmentFraction = defaults.object(forKey: Keys.minSegmentFraction) as? Double ?? 0.004
+        self.collapseTinySegments =
+            defaults.object(forKey: Keys.collapseTinySegments) as? Bool ?? true
+        self.minSegmentFraction =
+            defaults.object(forKey: Keys.minSegmentFraction) as? Double ?? 0.004
         self.animationsEnabled = defaults.object(forKey: Keys.animationsEnabled) as? Bool ?? true
-        let vizRaw = defaults.string(forKey: Keys.visualization) ?? VisualizationStyle.radial.rawValue
+        let vizRaw =
+            defaults.string(forKey: Keys.visualization) ?? VisualizationStyle.radial.rawValue
         self.visualization = VisualizationStyle(rawValue: vizRaw) ?? .radial
         self.confirmBeforeTrash = defaults.object(forKey: Keys.confirmBeforeTrash) as? Bool ?? true
         self.recentScansLimit = defaults.object(forKey: Keys.recentScansLimit) as? Int ?? 10

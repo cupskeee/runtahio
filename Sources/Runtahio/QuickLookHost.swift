@@ -9,7 +9,9 @@ import RuntahioCore
 /// If the shared panel is unavailable for any reason, we fall back to opening the file —
 /// so Space always does *something* useful.
 @MainActor
-final class QuickLookPreviewController: NSObject, @preconcurrency QLPreviewPanelDataSource, QLPreviewPanelDelegate {
+final class QuickLookPreviewController: NSObject, @preconcurrency QLPreviewPanelDataSource,
+    QLPreviewPanelDelegate
+{
     static let shared = QuickLookPreviewController()
 
     private var items: [URL] = []
@@ -32,7 +34,9 @@ final class QuickLookPreviewController: NSObject, @preconcurrency QLPreviewPanel
 
     /// Toggles the panel — shows it for `url`, or hides it if already showing.
     func toggle(_ url: URL) {
-        if QLPreviewPanel.sharedPreviewPanelExists(), let panel = QLPreviewPanel.shared(), panel.isVisible {
+        if QLPreviewPanel.sharedPreviewPanelExists(), let panel = QLPreviewPanel.shared(),
+            panel.isVisible
+        {
             panel.orderOut(nil)
         } else {
             preview(url)

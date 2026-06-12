@@ -13,8 +13,9 @@ enum RuntahPalette {
         isSelected: Bool,
         isHovered: Bool
     ) -> Color {
-        color(hue: segment.hue, category: segment.category, depth: segment.depth,
-              colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
+        color(
+            hue: segment.hue, category: segment.category, depth: segment.depth,
+            colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
     }
 
     static func color(
@@ -23,8 +24,9 @@ enum RuntahPalette {
         isSelected: Bool,
         isHovered: Bool
     ) -> Color {
-        color(hue: tile.hue, category: tile.category, depth: tile.depth,
-              colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
+        color(
+            hue: tile.hue, category: tile.category, depth: tile.depth,
+            colorScheme: colorScheme, isSelected: isSelected, isHovered: isHovered)
     }
 
     /// Shared color logic: hue from file type, lightness modulated by depth, plus

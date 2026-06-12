@@ -81,7 +81,8 @@ final class AppState {
     }
 
     func startScan(_ url: URL) {
-        let name = url.lastPathComponent.isEmpty ? url.path(percentEncoded: false) : url.lastPathComponent
+        let name =
+            url.lastPathComponent.isEmpty ? url.path(percentEncoded: false) : url.lastPathComponent
         recentScans.record(url, name: name, limit: settings.recentScansLimit)
         scan.start(root: url)
     }
@@ -188,9 +189,14 @@ final class AppState {
         panel.message = "Export Runtahio scan report (local only)"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         let excluding = scan.store.removedIDs
-        let data: Data = asJSON
-            ? ScanReportExporter.json(result, useAllocated: settings.useAllocatedSize, excluding: excluding)
-            : Data(ScanReportExporter.csv(result, useAllocated: settings.useAllocatedSize, excluding: excluding).utf8)
+        let data: Data =
+            asJSON
+            ? ScanReportExporter.json(
+                result, useAllocated: settings.useAllocatedSize, excluding: excluding)
+            : Data(
+                ScanReportExporter.csv(
+                    result, useAllocated: settings.useAllocatedSize, excluding: excluding
+                ).utf8)
         do {
             try data.write(to: url)
             flash("Exported report to \(url.lastPathComponent).")

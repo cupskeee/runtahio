@@ -40,7 +40,8 @@ public struct VolumeInfo: Identifiable, Sendable, Equatable {
     /// e.g. "120 GB free of 500 GB".
     public var capacityDescription: String {
         guard totalCapacity > 0 else { return "Unknown capacity" }
-        return "\(ByteSizeFormatter.string(availableCapacity)) free of \(ByteSizeFormatter.string(totalCapacity))"
+        return
+            "\(ByteSizeFormatter.string(availableCapacity)) free of \(ByteSizeFormatter.string(totalCapacity))"
     }
 }
 
@@ -49,26 +50,30 @@ public struct VolumeInfo: Identifiable, Sendable, Equatable {
 public enum VolumeScanner {
     public static let resourceKeys: [URLResourceKey] = [
         .volumeNameKey, .volumeIsInternalKey, .volumeIsRemovableKey, .volumeIsEjectableKey,
-        .volumeTotalCapacityKey, .volumeAvailableCapacityKey, .volumeIsLocalKey, .volumeIsBrowsableKey
+        .volumeTotalCapacityKey, .volumeAvailableCapacityKey, .volumeIsLocalKey,
+        .volumeIsBrowsableKey,
     ]
 
     public static func currentVolumes() -> [VolumeInfo] {
         let keys = Set(resourceKeys)
-        let urls = FileManager.default.mountedVolumeURLs(
-            includingResourceValuesForKeys: resourceKeys, options: [.skipHiddenVolumes]) ?? []
+        let urls =
+            FileManager.default.mountedVolumeURLs(
+                includingResourceValuesForKeys: resourceKeys, options: [.skipHiddenVolumes]) ?? []
         var result: [VolumeInfo] = []
         for url in urls {
             guard let values = try? url.resourceValues(forKeys: keys),
-                  values.volumeIsBrowsable ?? false,
-                  values.volumeIsLocal ?? false else { continue }
-            result.append(VolumeInfo(
-                path: url.path(percentEncoded: false),
-                name: values.volumeName ?? url.lastPathComponent,
-                isInternal: values.volumeIsInternal ?? true,
-                isRemovable: values.volumeIsRemovable ?? false,
-                isEjectable: values.volumeIsEjectable ?? false,
-                totalCapacity: Int64(values.volumeTotalCapacity ?? 0),
-                availableCapacity: Int64(values.volumeAvailableCapacity ?? 0)))
+                values.volumeIsBrowsable ?? false,
+                values.volumeIsLocal ?? false
+            else { continue }
+            result.append(
+                VolumeInfo(
+                    path: url.path(percentEncoded: false),
+                    name: values.volumeName ?? url.lastPathComponent,
+                    isInternal: values.volumeIsInternal ?? true,
+                    isRemovable: values.volumeIsRemovable ?? false,
+                    isEjectable: values.volumeIsEjectable ?? false,
+                    totalCapacity: Int64(values.volumeTotalCapacity ?? 0),
+                    availableCapacity: Int64(values.volumeAvailableCapacity ?? 0)))
         }
         // Internal volumes first, then external; each group sorted by name.
         return result.sorted { a, b in

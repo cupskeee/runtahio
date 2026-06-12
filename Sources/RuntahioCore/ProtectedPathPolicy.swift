@@ -17,7 +17,8 @@ public enum BlockReason: String, Sendable, Equatable {
         case .systemDomain:
             return "This is a macOS system location and is protected from cleanup."
         case .volumesMountRoot:
-            return "This is a volume's mount point. Add items inside it instead of the whole volume."
+            return
+                "This is a volume's mount point. Add items inside it instead of the whole volume."
         case .homeDirectoryRoot:
             return "Your Home folder is protected. Add specific items inside it instead."
         }
@@ -31,7 +32,8 @@ public enum ConfirmReason: String, Sendable, Equatable {
     public var explanation: String {
         switch self {
         case .scanRootItself:
-            return "This is the folder you scanned. Moving the entire scanned folder to Trash needs explicit confirmation."
+            return
+                "This is the folder you scanned. Moving the entire scanned folder to Trash needs explicit confirmation."
         }
     }
 }

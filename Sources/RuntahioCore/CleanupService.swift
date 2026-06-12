@@ -50,13 +50,15 @@ public actor CleanupService {
             do {
                 var resulting: NSURL?
                 try fileManager.trashItem(at: item.url, resultingItemURL: &resulting)
-                outcomes.append(TrashOutcome(
-                    item: item, success: true,
-                    resultingURL: resulting as URL?, errorMessage: nil))
+                outcomes.append(
+                    TrashOutcome(
+                        item: item, success: true,
+                        resultingURL: resulting as URL?, errorMessage: nil))
             } catch {
-                outcomes.append(TrashOutcome(
-                    item: item, success: false, resultingURL: nil,
-                    errorMessage: (error as NSError).localizedDescription))
+                outcomes.append(
+                    TrashOutcome(
+                        item: item, success: false, resultingURL: nil,
+                        errorMessage: (error as NSError).localizedDescription))
             }
         }
 

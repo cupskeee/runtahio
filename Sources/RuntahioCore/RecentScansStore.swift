@@ -33,7 +33,8 @@ public final class RecentScansStore {
 
     private func load() {
         guard let data = defaults.data(forKey: key),
-              let decoded = try? JSONDecoder().decode([RecentScanEntry].self, from: data) else {
+            let decoded = try? JSONDecoder().decode([RecentScanEntry].self, from: data)
+        else {
             entries = []
             return
         }

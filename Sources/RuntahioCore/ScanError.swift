@@ -48,7 +48,8 @@ public enum ScanError: Error, Sendable, Equatable, Hashable {
         let posixCode: Int32? = {
             if nsError.domain == NSPOSIXErrorDomain { return Int32(nsError.code) }
             if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
-               underlying.domain == NSPOSIXErrorDomain {
+                underlying.domain == NSPOSIXErrorDomain
+            {
                 return Int32(underlying.code)
             }
             return nil

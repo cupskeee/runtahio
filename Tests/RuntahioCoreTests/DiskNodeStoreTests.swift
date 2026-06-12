@@ -4,10 +4,12 @@ import XCTest
 @MainActor
 final class DiskNodeStoreTests: XCTestCase {
     private func sampleTree() -> DiskNode {
-        let sub = TestTree.dir("sub", parentID: "/root", depth: 1, children: [
-            TestTree.file("b", size: 2000, parentID: "/root/sub", depth: 2),
-            TestTree.file("c", size: 3000, parentID: "/root/sub", depth: 2),
-        ])
+        let sub = TestTree.dir(
+            "sub", parentID: "/root", depth: 1,
+            children: [
+                TestTree.file("b", size: 2000, parentID: "/root/sub", depth: 2),
+                TestTree.file("c", size: 3000, parentID: "/root/sub", depth: 2),
+            ])
         let a = TestTree.file("a", size: 1000, parentID: "/root", depth: 1)
         return TestTree.root("root", children: [a, sub])
     }
@@ -35,7 +37,7 @@ final class DiskNodeStoreTests: XCTestCase {
         let store = DiskNodeStore()
         store.load(TestTree.result(root: sampleTree()))
         store.markRemoved(ids: ["/root/sub/b"])
-        store.markRemoved(ids: ["/root/sub/b"]) // again — must not double-subtract
+        store.markRemoved(ids: ["/root/sub/b"])  // again — must not double-subtract
         XCTAssertEqual(store.effectiveTotalSize(useAllocated: false), 4000)
     }
 

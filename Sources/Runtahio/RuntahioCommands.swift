@@ -25,8 +25,10 @@ struct RuntahioCommands: Commands {
             modeButton(.duplicates, key: "5")
             modeButton(.inaccessible, key: "6")
             Divider()
-            Button(appState.settings.visualization == .treemap ? "Show Runtah Map" : "Show Treemap") {
-                appState.settings.visualization = appState.settings.visualization == .treemap ? .radial : .treemap
+            Button(appState.settings.visualization == .treemap ? "Show Runtah Map" : "Show Treemap")
+            {
+                appState.settings.visualization =
+                    appState.settings.visualization == .treemap ? .radial : .treemap
             }
             .keyboardShortcut("t", modifiers: [.command, .shift])
             .disabled(appState.scan.rootNode == nil)
@@ -70,7 +72,11 @@ struct RuntahioCommands: Commands {
     @ViewBuilder
     private func modeButton(_ mode: ContentMode, key: KeyEquivalent) -> some View {
         Button(mode == .explorer ? "Explorer (Map)" : mode.title) {
-            if mode == .explorer { appState.scan.showExplorer() } else { appState.scan.setMode(mode) }
+            if mode == .explorer {
+                appState.scan.showExplorer()
+            } else {
+                appState.scan.setMode(mode)
+            }
         }
         .keyboardShortcut(key, modifiers: .command)
         .disabled(appState.scan.rootNode == nil)

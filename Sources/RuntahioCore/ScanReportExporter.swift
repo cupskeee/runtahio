@@ -31,19 +31,33 @@ public enum ScanReportExporter {
 
     /// Builds the structured report (also used directly by tests).
     public static func makeReport(
-        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100, excluding: Set<String> = []
+        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100,
+        excluding: Set<String> = []
     ) -> Report {
-        let categories = ScanAnalytics
-            .categoryBreakdown(in: result.rootNode, useAllocated: useAllocated, excluding: excluding)
-            .map { CategoryEntry(category: $0.category.rawValue, totalSizeBytes: $0.totalSize, fileCount: $0.fileCount) }
+        let categories =
+            ScanAnalytics
+            .categoryBreakdown(
+                in: result.rootNode, useAllocated: useAllocated, excluding: excluding
+            )
+            .map {
+                CategoryEntry(
+                    category: $0.category.rawValue, totalSizeBytes: $0.totalSize,
+                    fileCount: $0.fileCount)
+            }
 
-        let largest = ScanAnalytics
-            .largestFiles(in: result.rootNode, limit: topFilesLimit, useAllocated: useAllocated, excluding: excluding)
-            .map { FileEntry(
-                path: $0.url.path(percentEncoded: false),
-                sizeBytes: $0.effectiveSize(useAllocated: useAllocated),
-                kind: $0.type.displayLabel,
-                modified: $0.modifiedDate) }
+        let largest =
+            ScanAnalytics
+            .largestFiles(
+                in: result.rootNode, limit: topFilesLimit, useAllocated: useAllocated,
+                excluding: excluding
+            )
+            .map {
+                FileEntry(
+                    path: $0.url.path(percentEncoded: false),
+                    sizeBytes: $0.effectiveSize(useAllocated: useAllocated),
+                    kind: $0.type.displayLabel,
+                    modified: $0.modifiedDate)
+            }
 
         return Report(
             rootPath: result.rootNode.url.path(percentEncoded: false),
@@ -58,9 +72,11 @@ public enum ScanReportExporter {
     }
 
     public static func json(
-        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100, excluding: Set<String> = []
+        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100,
+        excluding: Set<String> = []
     ) -> Data {
-        let report = makeReport(result, useAllocated: useAllocated, topFilesLimit: topFilesLimit, excluding: excluding)
+        let report = makeReport(
+            result, useAllocated: useAllocated, topFilesLimit: topFilesLimit, excluding: excluding)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         encoder.dateEncodingStrategy = .iso8601
@@ -69,9 +85,11 @@ public enum ScanReportExporter {
 
     /// CSV of the largest files (one table, RFC-4180-style quoting).
     public static func csv(
-        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100, excluding: Set<String> = []
+        _ result: ScanResult, useAllocated: Bool, topFilesLimit: Int = 100,
+        excluding: Set<String> = []
     ) -> String {
-        let report = makeReport(result, useAllocated: useAllocated, topFilesLimit: topFilesLimit, excluding: excluding)
+        let report = makeReport(
+            result, useAllocated: useAllocated, topFilesLimit: topFilesLimit, excluding: excluding)
         let iso = ISO8601DateFormatter()
         var lines = ["Path,Size (bytes),Kind,Modified"]
         for file in report.largestFiles {
@@ -84,7 +102,9 @@ public enum ScanReportExporter {
 
     /// Quotes a CSV field when it contains a comma, quote, or newline (doubling quotes).
     static func escapeCSV(_ field: String) -> String {
-        guard field.contains(",") || field.contains("\"") || field.contains("\n") else { return field }
+        guard field.contains(",") || field.contains("\"") || field.contains("\n") else {
+            return field
+        }
         return "\"" + field.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 }

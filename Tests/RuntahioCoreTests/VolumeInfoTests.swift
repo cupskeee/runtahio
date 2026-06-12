@@ -2,11 +2,14 @@ import XCTest
 @testable import RuntahioCore
 
 final class VolumeInfoTests: XCTestCase {
-    private func volume(internalDrive: Bool, removable: Bool = false, ejectable: Bool = false,
-                        total: Int64 = 500_000_000_000, available: Int64 = 200_000_000_000) -> VolumeInfo {
-        VolumeInfo(path: "/Volumes/Test", name: "Test", isInternal: internalDrive,
-                   isRemovable: removable, isEjectable: ejectable,
-                   totalCapacity: total, availableCapacity: available)
+    private func volume(
+        internalDrive: Bool, removable: Bool = false, ejectable: Bool = false,
+        total: Int64 = 500_000_000_000, available: Int64 = 200_000_000_000
+    ) -> VolumeInfo {
+        VolumeInfo(
+            path: "/Volumes/Test", name: "Test", isInternal: internalDrive,
+            isRemovable: removable, isEjectable: ejectable,
+            totalCapacity: total, availableCapacity: available)
     }
 
     func testUsedCapacityAndFraction() {
@@ -37,8 +40,9 @@ final class VolumeInfoTests: XCTestCase {
     func testCapacityDescription() {
         let v = volume(internalDrive: true, total: 1000, available: 1000)
         XCTAssertTrue(v.capacityDescription.contains("free of"))
-        let unknown = VolumeInfo(path: "/x", name: "x", isInternal: true, isRemovable: false,
-                                 isEjectable: false, totalCapacity: 0, availableCapacity: 0)
+        let unknown = VolumeInfo(
+            path: "/x", name: "x", isInternal: true, isRemovable: false,
+            isEjectable: false, totalCapacity: 0, availableCapacity: 0)
         XCTAssertEqual(unknown.capacityDescription, "Unknown capacity")
     }
 

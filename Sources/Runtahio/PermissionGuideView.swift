@@ -18,7 +18,8 @@ struct PermissionGuideView: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                ForEach(Array(PermissionSupport.fullDiskAccessSteps.enumerated()), id: \.offset) { index, step in
+                ForEach(Array(PermissionSupport.fullDiskAccessSteps.enumerated()), id: \.offset) {
+                    index, step in
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text("\(index + 1).").monospacedDigit().foregroundStyle(.secondary)
                         Text(step)

@@ -4,9 +4,10 @@ import XCTest
 final class CleanupServiceTests: XCTestCase {
 
     private func item(for url: URL, byteSize: Int64, allocated: Int64) -> BasketItem {
-        BasketItem(id: url.standardizedFileURL.path(percentEncoded: false),
-                   name: url.lastPathComponent, url: url,
-                   byteSize: byteSize, allocatedSize: allocated, type: .file)
+        BasketItem(
+            id: url.standardizedFileURL.path(percentEncoded: false),
+            name: url.lastPathComponent, url: url,
+            byteSize: byteSize, allocatedSize: allocated, type: .file)
     }
 
     func testMoveToTrashMovesItemAndKeepsRecoverableCopy() async throws {
@@ -15,16 +16,20 @@ final class CleanupServiceTests: XCTestCase {
         let fileURL = try TempFixture.writeFile("trashme.txt", bytes: 1234, in: dir)
 
         let service = CleanupService()
-        let summary = await service.moveToTrash([item(for: fileURL, byteSize: 1234, allocated: 4096)])
+        let summary = await service.moveToTrash([
+            item(for: fileURL, byteSize: 1234, allocated: 4096)
+        ])
 
         XCTAssertTrue(summary.allSucceeded, "expected the trash to succeed: \(summary.failed)")
         XCTAssertEqual(summary.movedCount, 1)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path),
-                       "original should no longer be at its path")
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: fileURL.path),
+            "original should no longer be at its path")
 
         let resulting = try XCTUnwrap(summary.succeeded.first?.resultingURL)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: resulting.path),
-                      "a recoverable copy must exist in Trash (never permanently deleted)")
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: resulting.path),
+            "a recoverable copy must exist in Trash (never permanently deleted)")
         XCTAssertEqual(summary.reclaimedBytes(useAllocated: false), 1234)
 
         // Tidy: remove the copy we created in the Trash.

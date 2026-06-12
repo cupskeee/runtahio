@@ -70,20 +70,24 @@ public struct Strings: Sendable {
     public var freed: String { t("Freed", "Dibebaskan") }
 
     // Basket
-    public var basketEmptyHint: String { t("Empty — add items to clean up.", "Kosong — tambah item untuk dibersihkan.") }
+    public var basketEmptyHint: String {
+        t("Empty — add items to clean up.", "Kosong — tambah item untuk dibersihkan.")
+    }
     public var reclaimable: String { t("reclaimable", "bisa dibebaskan") }
 
     // Empty / onboarding / inspector
     public var emptyTitle: String { t("Find your digital runtah.", "Temukan runtah digital kamu.") }
     public var emptySubtitle: String {
-        t("Choose a folder or disk to see what is taking up space.",
-          "Pilih folder atau disk untuk melihat apa yang memakan ruang.")
+        t(
+            "Choose a folder or disk to see what is taking up space.",
+            "Pilih folder atau disk untuk melihat apa yang memakan ruang.")
     }
     public var welcome: String { t("Welcome to Runtahio", "Selamat datang di Runtahio") }
     public var noSelection: String { t("No selection", "Tidak ada pilihan") }
     public var inspectHint: String {
-        t("Select an item in the Runtah Map or the list to inspect it.",
-          "Pilih item di Runtah Map atau daftar untuk memeriksanya.")
+        t(
+            "Select an item in the Runtah Map or the list to inspect it.",
+            "Pilih item di Runtah Map atau daftar untuk memeriksanya.")
     }
 
     // Settings section titles

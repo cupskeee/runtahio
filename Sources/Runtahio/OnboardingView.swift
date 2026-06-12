@@ -19,13 +19,18 @@ struct OnboardingView: View {
             }
 
             VStack(alignment: .leading, spacing: 14) {
-                row("magnifyingglass", "See what's using space",
+                row(
+                    "magnifyingglass", "See what's using space",
                     "Scan a folder or disk and explore it with the Runtah Map and analysis views.")
                 row("hand.raised", "Private by design", PermissionSupport.privacyNote)
-                row("trash", "Safe cleanup",
-                    "Items go to the Trash only after you confirm — they're never permanently deleted, and system folders are protected.")
-                row("lock.shield", "Full Disk Access",
-                    "Some system locations need Full Disk Access, granted to the Runtahio app in System Settings.")
+                row(
+                    "trash", "Safe cleanup",
+                    "Items go to the Trash only after you confirm — they're never permanently deleted, and system folders are protected."
+                )
+                row(
+                    "lock.shield", "Full Disk Access",
+                    "Some system locations need Full Disk Access, granted to the Runtahio app in System Settings."
+                )
             }
             .padding()
             .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 10))

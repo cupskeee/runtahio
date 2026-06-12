@@ -11,22 +11,26 @@ final class RadialLayoutEngineTests: XCTestCase {
     }
 
     func testRing1SweepsSumToFullCircle() {
-        let focus = TestTree.root("focus", children: [
-            TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
-            TestTree.file("b", size: 50, parentID: "/focus", depth: 1),
-            TestTree.file("c", size: 30, parentID: "/focus", depth: 1),
-            TestTree.file("d", size: 20, parentID: "/focus", depth: 1),
-            TestTree.file("e", size: 10, parentID: "/focus", depth: 1),
-        ])
+        let focus = TestTree.root(
+            "focus",
+            children: [
+                TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
+                TestTree.file("b", size: 50, parentID: "/focus", depth: 1),
+                TestTree.file("c", size: 30, parentID: "/focus", depth: 1),
+                TestTree.file("d", size: 20, parentID: "/focus", depth: 1),
+                TestTree.file("e", size: 10, parentID: "/focus", depth: 1),
+            ])
         let segments = RadialLayoutEngine.layout(focus: focus, geometry: size, options: options)
         XCTAssertEqual(ring1SweepSum(segments), 2 * .pi, accuracy: 1e-9)
     }
 
     func testChildSweepsSumToParentArc() {
-        let a = TestTree.dir("A", parentID: "/focus", depth: 1, children: [
-            TestTree.file("a1", size: 300, parentID: "/focus/A", depth: 2),
-            TestTree.file("a2", size: 200, parentID: "/focus/A", depth: 2),
-        ])
+        let a = TestTree.dir(
+            "A", parentID: "/focus", depth: 1,
+            children: [
+                TestTree.file("a1", size: 300, parentID: "/focus/A", depth: 2),
+                TestTree.file("a2", size: 200, parentID: "/focus/A", depth: 2),
+            ])
         let f1 = TestTree.file("f1", size: 500, parentID: "/focus", depth: 1)
         let focus = TestTree.root("focus", children: [a, f1])
 
@@ -34,11 +38,12 @@ final class RadialLayoutEngineTests: XCTestCase {
         guard let aSeg = segments.first(where: { $0.nodeID == a.id }) else {
             return XCTFail("missing segment for A")
         }
-        let childSweepSum = segments
+        let childSweepSum =
+            segments
             .filter { $0.parentNodeID == a.id }
             .reduce(0) { $0 + $1.sweep }
         XCTAssertEqual(childSweepSum, aSeg.sweep, accuracy: 1e-9)
-        XCTAssertEqual(aSeg.sweep, .pi, accuracy: 1e-9) // 500/1000 of the circle
+        XCTAssertEqual(aSeg.sweep, .pi, accuracy: 1e-9)  // 500/1000 of the circle
     }
 
     func testOtherAggregationCarriesSizeAndClosesArc() {
@@ -52,16 +57,19 @@ final class RadialLayoutEngineTests: XCTestCase {
         let others = segments.filter { $0.isOther && $0.depth == 1 }
         XCTAssertEqual(others.count, 1, "tiny siblings should collapse into one Other")
         XCTAssertEqual(others.first?.byteSize, 100, "Other carries the summed collapsed size")
-        XCTAssertEqual(others.first?.endAngle ?? 0, 2 * .pi, accuracy: 1e-9, "Other closes the ring")
+        XCTAssertEqual(
+            others.first?.endAngle ?? 0, 2 * .pi, accuracy: 1e-9, "Other closes the ring")
         XCTAssertEqual(ring1SweepSum(segments), 2 * .pi, accuracy: 1e-9)
     }
 
     func testHitTestRoundTrip() {
-        let focus = TestTree.root("focus", children: [
-            TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
-            TestTree.file("b", size: 60, parentID: "/focus", depth: 1),
-            TestTree.file("c", size: 40, parentID: "/focus", depth: 1),
-        ])
+        let focus = TestTree.root(
+            "focus",
+            children: [
+                TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
+                TestTree.file("b", size: 60, parentID: "/focus", depth: 1),
+                TestTree.file("c", size: 40, parentID: "/focus", depth: 1),
+            ])
         let segments = RadialLayoutEngine.layout(focus: focus, geometry: size, options: options)
         let cx = size.width / 2, cy = size.height / 2
 
@@ -75,12 +83,16 @@ final class RadialLayoutEngineTests: XCTestCase {
     }
 
     func testLayoutIsDeterministic() {
-        let focus = TestTree.root("focus", children: [
-            TestTree.dir("A", parentID: "/focus", depth: 1, children: [
-                TestTree.file("a1", size: 30, parentID: "/focus/A", depth: 2),
-            ]),
-            TestTree.file("f", size: 70, parentID: "/focus", depth: 1),
-        ])
+        let focus = TestTree.root(
+            "focus",
+            children: [
+                TestTree.dir(
+                    "A", parentID: "/focus", depth: 1,
+                    children: [
+                        TestTree.file("a1", size: 30, parentID: "/focus/A", depth: 2)
+                    ]),
+                TestTree.file("f", size: 70, parentID: "/focus", depth: 1),
+            ])
         let first = RadialLayoutEngine.layout(focus: focus, geometry: size, options: options)
         let second = RadialLayoutEngine.layout(focus: focus, geometry: size, options: options)
         XCTAssertEqual(first, second)
@@ -102,15 +114,21 @@ final class RadialLayoutEngineTests: XCTestCase {
     }
 
     func testCenterDiskDetection() {
-        XCTAssertTrue(RadialLayoutEngine.isInCenterDisk(CGPoint(x: 300, y: 300), geometry: size, options: options))
-        XCTAssertFalse(RadialLayoutEngine.isInCenterDisk(CGPoint(x: 10, y: 10), geometry: size, options: options))
+        XCTAssertTrue(
+            RadialLayoutEngine.isInCenterDisk(
+                CGPoint(x: 300, y: 300), geometry: size, options: options))
+        XCTAssertFalse(
+            RadialLayoutEngine.isInCenterDisk(
+                CGPoint(x: 10, y: 10), geometry: size, options: options))
     }
 
     func testExcludedNodesAreOmittedAndRescale() {
-        let focus = TestTree.root("focus", children: [
-            TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
-            TestTree.file("b", size: 100, parentID: "/focus", depth: 1),
-        ])
+        let focus = TestTree.root(
+            "focus",
+            children: [
+                TestTree.file("a", size: 100, parentID: "/focus", depth: 1),
+                TestTree.file("b", size: 100, parentID: "/focus", depth: 1),
+            ])
         let segments = RadialLayoutEngine.layout(
             focus: focus, geometry: size, options: options, excludingIDs: ["/focus/b"])
         let depth1 = segments.filter { $0.depth == 1 }

@@ -59,8 +59,11 @@ struct BasketBar: View {
             LazyVStack(spacing: 0) {
                 ForEach(basket.items) { item in
                     HStack(spacing: 8) {
-                        Image(systemName: item.type == .directory || item.type == .package ? "folder" : "doc")
-                            .foregroundStyle(.secondary)
+                        Image(
+                            systemName: item.type == .directory || item.type == .package
+                                ? "folder" : "doc"
+                        )
+                        .foregroundStyle(.secondary)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name).lineLimit(1)
                             Text(item.url.path(percentEncoded: false))
@@ -70,9 +73,12 @@ struct BasketBar: View {
                                 .truncationMode(.middle)
                         }
                         Spacer()
-                        Text(ByteSizeFormatter.string(item.effectiveSize(useAllocated: basket.useAllocatedForReclaimable)))
-                            .font(.callout.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                        Text(
+                            ByteSizeFormatter.string(
+                                item.effectiveSize(useAllocated: basket.useAllocatedForReclaimable))
+                        )
+                        .font(.callout.monospacedDigit())
+                        .foregroundStyle(.secondary)
                         Button {
                             basket.remove(id: item.id)
                         } label: {
@@ -93,6 +99,7 @@ struct BasketBar: View {
     private var summaryText: String {
         guard !basket.isEmpty else { return appState.strings.basketEmptyHint }
         let itemWord = basket.count == 1 ? "item" : "items"
-        return "\(basket.count) \(itemWord) · \(ByteSizeFormatter.string(basket.totalReclaimable)) \(appState.strings.reclaimable)"
+        return
+            "\(basket.count) \(itemWord) · \(ByteSizeFormatter.string(basket.totalReclaimable)) \(appState.strings.reclaimable)"
     }
 }

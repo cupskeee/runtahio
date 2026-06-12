@@ -26,11 +26,19 @@ public enum TreemapLayoutEngine {
 
             let useAllocated = options.useAllocatedSize
             let children = parent.children
-                .filter { !excludingIDs.contains($0.id) && $0.effectiveSize(useAllocated: useAllocated) > 0 }
-                .sorted { $0.effectiveSize(useAllocated: useAllocated) > $1.effectiveSize(useAllocated: useAllocated) }
+                .filter {
+                    !excludingIDs.contains($0.id)
+                        && $0.effectiveSize(useAllocated: useAllocated) > 0
+                }
+                .sorted {
+                    $0.effectiveSize(useAllocated: useAllocated)
+                        > $1.effectiveSize(useAllocated: useAllocated)
+                }
             guard !children.isEmpty else { return }
 
-            let drawnTotal = children.reduce(0.0) { $0 + Double($1.effectiveSize(useAllocated: useAllocated)) }
+            let drawnTotal = children.reduce(0.0) {
+                $0 + Double($1.effectiveSize(useAllocated: useAllocated))
+            }
             guard drawnTotal > 0 else { return }
 
             // Partition tiny children into an aggregated "Other".
@@ -57,22 +65,30 @@ public enum TreemapLayoutEngine {
                 guard tiles.count < options.maxTiles else { return }
                 let isOther = otherSize > 0 && index == visible.count
                 if isOther {
-                    tiles.append(TreemapTile(
-                        id: makeID(), nodeID: nil, parentNodeID: parent.id, rect: frame, depth: depth,
-                        byteSize: Int64(otherSize), displayName: "Other", hue: FileCategory.other.hue,
-                        category: .other, isOther: true, isDrillable: false))
+                    tiles.append(
+                        TreemapTile(
+                            id: makeID(), nodeID: nil, parentNodeID: parent.id, rect: frame,
+                            depth: depth,
+                            byteSize: Int64(otherSize), displayName: "Other",
+                            hue: FileCategory.other.hue,
+                            category: .other, isOther: true, isDrillable: false))
                     continue
                 }
                 let child = visible[index]
                 let category = FileCategory.category(for: child)
-                tiles.append(TreemapTile(
-                    id: makeID(), nodeID: child.id, parentNodeID: parent.id, rect: frame, depth: depth,
-                    byteSize: child.effectiveSize(useAllocated: useAllocated), displayName: child.name,
-                    hue: category.hue, category: category, isOther: false, isDrillable: child.isContainer))
+                tiles.append(
+                    TreemapTile(
+                        id: makeID(), nodeID: child.id, parentNodeID: parent.id, rect: frame,
+                        depth: depth,
+                        byteSize: child.effectiveSize(useAllocated: useAllocated),
+                        displayName: child.name,
+                        hue: category.hue, category: category, isOther: false,
+                        isDrillable: child.isContainer))
 
                 // Recurse into folder tiles that are big enough, reserving a header strip.
                 if child.isContainer, depth < options.maxDepth,
-                   frame.width >= options.minRecurseSide, frame.height >= options.minRecurseSide {
+                    frame.width >= options.minRecurseSide, frame.height >= options.minRecurseSide
+                {
                     let inner = CGRect(
                         x: frame.minX + options.padding,
                         y: frame.minY + options.headerHeight,
@@ -117,10 +133,12 @@ public enum TreemapLayoutEngine {
             var rowSum = areas[i]
             while i + rowCount < n {
                 let nextSum = rowSum + areas[i + rowCount]
-                let currentWorst = worst(rowSum: rowSum, maxArea: maxIn(areas, i, rowCount),
-                                         minArea: minIn(areas, i, rowCount), side: shortSide)
-                let nextWorst = worst(rowSum: nextSum, maxArea: maxIn(areas, i, rowCount + 1),
-                                      minArea: minIn(areas, i, rowCount + 1), side: shortSide)
+                let currentWorst = worst(
+                    rowSum: rowSum, maxArea: maxIn(areas, i, rowCount),
+                    minArea: minIn(areas, i, rowCount), side: shortSide)
+                let nextWorst = worst(
+                    rowSum: nextSum, maxArea: maxIn(areas, i, rowCount + 1),
+                    minArea: minIn(areas, i, rowCount + 1), side: shortSide)
                 if nextWorst <= currentWorst {
                     rowCount += 1
                     rowSum = nextSum
@@ -138,8 +156,9 @@ public enum TreemapLayoutEngine {
                     result[i + k] = CGRect(x: free.minX, y: y, width: thickness, height: h)
                     y += h
                 }
-                free = CGRect(x: Double(free.minX) + thickness, y: Double(free.minY),
-                              width: Double(free.width) - thickness, height: Double(free.height))
+                free = CGRect(
+                    x: Double(free.minX) + thickness, y: Double(free.minY),
+                    width: Double(free.width) - thickness, height: Double(free.height))
             } else {
                 var x = Double(free.minX)
                 for k in 0..<rowCount {
@@ -147,15 +166,18 @@ public enum TreemapLayoutEngine {
                     result[i + k] = CGRect(x: x, y: free.minY, width: w, height: thickness)
                     x += w
                 }
-                free = CGRect(x: Double(free.minX), y: Double(free.minY) + thickness,
-                              width: Double(free.width), height: Double(free.height) - thickness)
+                free = CGRect(
+                    x: Double(free.minX), y: Double(free.minY) + thickness,
+                    width: Double(free.width), height: Double(free.height) - thickness)
             }
             i += rowCount
         }
         return result
     }
 
-    private static func worst(rowSum: Double, maxArea: Double, minArea: Double, side: Double) -> Double {
+    private static func worst(rowSum: Double, maxArea: Double, minArea: Double, side: Double)
+        -> Double
+    {
         guard rowSum > 0, side > 0, minArea > 0 else { return .infinity }
         let s2 = rowSum * rowSum
         let w2 = side * side

@@ -8,7 +8,8 @@ final class PrivacyWordingGuardrailTests: XCTestCase {
     func testPrivacyNoteIsVerbatim() {
         XCTAssertEqual(
             PermissionSupport.privacyNote,
-            "Runtahio scans file metadata locally on your Mac. It does not upload file names, paths, sizes, or contents.")
+            "Runtahio scans file metadata locally on your Mac. It does not upload file names, paths, sizes, or contents."
+        )
     }
 
     func testTrashWordingNeverSaysDeleteOrPermanent() {
@@ -21,7 +22,9 @@ final class PrivacyWordingGuardrailTests: XCTestCase {
     }
 
     func testSettingsLinkIsLocalSchemeNotNetwork() {
-        XCTAssertTrue(PermissionSupport.fullDiskAccessSettingsURLString.hasPrefix("x-apple.systempreferences:"))
+        XCTAssertTrue(
+            PermissionSupport.fullDiskAccessSettingsURLString.hasPrefix(
+                "x-apple.systempreferences:"))
         XCTAssertNotNil(PermissionSupport.fullDiskAccessSettingsURL)
         XCTAssertFalse(PermissionSupport.fullDiskAccessSettingsURLString.contains("http"))
     }
@@ -29,21 +32,26 @@ final class PrivacyWordingGuardrailTests: XCTestCase {
     /// Best-effort static check: the Core sources must contain no http(s) URLs.
     func testNoNetworkURLsInCoreSources() throws {
         let thisFile = URL(fileURLWithPath: #filePath)
-        let coreDir = thisFile
-            .deletingLastPathComponent()   // RuntahioCoreTests
-            .deletingLastPathComponent()   // Tests
-            .deletingLastPathComponent()   // project root
+        let coreDir =
+            thisFile
+            .deletingLastPathComponent()  // RuntahioCoreTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // project root
             .appendingPathComponent("Sources/RuntahioCore", isDirectory: true)
 
-        guard let files = try? FileManager.default.contentsOfDirectory(
-            at: coreDir, includingPropertiesForKeys: nil) else {
+        guard
+            let files = try? FileManager.default.contentsOfDirectory(
+                at: coreDir, includingPropertiesForKeys: nil)
+        else {
             throw XCTSkip("Core source directory not reachable from test bundle")
         }
 
         for file in files where file.pathExtension == "swift" {
             let content = (try? String(contentsOf: file, encoding: .utf8)) ?? ""
-            XCTAssertFalse(content.contains("http://"), "\(file.lastPathComponent) contains http://")
-            XCTAssertFalse(content.contains("https://"), "\(file.lastPathComponent) contains https://")
+            XCTAssertFalse(
+                content.contains("http://"), "\(file.lastPathComponent) contains http://")
+            XCTAssertFalse(
+                content.contains("https://"), "\(file.lastPathComponent) contains https://")
         }
     }
 }

@@ -21,11 +21,13 @@ public enum PermissionSupport {
     public static func isPermissionDenied(_ error: Error) -> Bool {
         let nsError = error as NSError
         if nsError.domain == NSPOSIXErrorDomain,
-           nsError.code == Int(EACCES) || nsError.code == Int(EPERM) {
+            nsError.code == Int(EACCES) || nsError.code == Int(EPERM)
+        {
             return true
         }
         if nsError.domain == NSCocoaErrorDomain,
-           nsError.code == NSFileReadNoPermissionError {
+            nsError.code == NSFileReadNoPermissionError
+        {
             return true
         }
         if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {

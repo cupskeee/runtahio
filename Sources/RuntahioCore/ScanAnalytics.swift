@@ -59,7 +59,9 @@ public enum ScanAnalytics {
     }
 
     /// Every inaccessible node in the subtree (for the "Inaccessible Items" view).
-    public static func inaccessibleNodes(in root: DiskNode, excluding: Set<String> = []) -> [DiskNode] {
+    public static func inaccessibleNodes(in root: DiskNode, excluding: Set<String> = [])
+        -> [DiskNode]
+    {
         var result: [DiskNode] = []
         var stack: [DiskNode] = [root]
         while let node = stack.popLast() {
@@ -74,16 +76,22 @@ public enum ScanAnalytics {
         in root: DiskNode, limit: Int, useAllocated: Bool, excluding: Set<String> = []
     ) -> [DiskNode] {
         leaves(in: root, excluding: excluding)
-            .sorted { $0.effectiveSize(useAllocated: useAllocated) > $1.effectiveSize(useAllocated: useAllocated) }
+            .sorted {
+                $0.effectiveSize(useAllocated: useAllocated)
+                    > $1.effectiveSize(useAllocated: useAllocated)
+            }
             .prefix(max(0, limit))
             .map { $0 }
     }
 
     public static func oldestFiles(
-        in root: DiskNode, limit: Int, minSize: Int64 = 0, useAllocated: Bool, excluding: Set<String> = []
+        in root: DiskNode, limit: Int, minSize: Int64 = 0, useAllocated: Bool,
+        excluding: Set<String> = []
     ) -> [DiskNode] {
         leaves(in: root, excluding: excluding)
-            .filter { $0.modifiedDate != nil && $0.effectiveSize(useAllocated: useAllocated) >= minSize }
+            .filter {
+                $0.modifiedDate != nil && $0.effectiveSize(useAllocated: useAllocated) >= minSize
+            }
             .sorted { ($0.modifiedDate ?? .distantFuture) < ($1.modifiedDate ?? .distantFuture) }
             .prefix(max(0, limit))
             .map { $0 }
@@ -100,7 +108,9 @@ public enum ScanAnalytics {
             counts[category, default: 0] += 1
         }
         return sizes.keys
-            .map { CategoryStat(category: $0, totalSize: sizes[$0] ?? 0, fileCount: counts[$0] ?? 0) }
+            .map {
+                CategoryStat(category: $0, totalSize: sizes[$0] ?? 0, fileCount: counts[$0] ?? 0)
+            }
             .sorted { $0.totalSize > $1.totalSize }
     }
 
@@ -110,11 +120,13 @@ public enum ScanAnalytics {
         in root: DiskNode, minSize: Int64 = 0, excluding: Set<String> = []
     ) -> [DuplicateGroup] {
         var buckets: [String: [DiskNode]] = [:]
-        for leaf in leaves(in: root, excluding: excluding) where leaf.byteSize >= minSize && leaf.byteSize > 0 {
+        for leaf in leaves(in: root, excluding: excluding)
+        where leaf.byteSize >= minSize && leaf.byteSize > 0 {
             let key = "\(leaf.byteSize)|\(leaf.name.lowercased())"
             buckets[key, default: []].append(leaf)
         }
-        return buckets
+        return
+            buckets
             .filter { $0.value.count > 1 }
             .map { key, nodes in
                 DuplicateGroup(id: key, name: nodes[0].name, size: nodes[0].byteSize, nodes: nodes)

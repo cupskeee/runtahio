@@ -15,16 +15,20 @@ final class ProtectedPathPolicyTests: XCTestCase {
     }
 
     func testSystemDomainRootsAreBlocked() {
-        for p in ["/System", "/Library", "/bin", "/sbin", "/usr", "/opt", "/private",
-                  "/System/Library/Fonts", "/usr/local/bin"] {
+        for p in [
+            "/System", "/Library", "/bin", "/sbin", "/usr", "/opt", "/private",
+            "/System/Library/Fonts", "/usr/local/bin",
+        ] {
             XCTAssertEqual(verdict(p), .blocked(reason: .systemDomain), "expected \(p) blocked")
         }
     }
 
     func testFirmlinkSpellingsBothBlocked() {
-        for p in ["/etc", "/var", "/tmp", "/cores",
-                  "/private/etc", "/private/var", "/private/tmp", "/private/cores",
-                  "/var/db", "/private/var/db"] {
+        for p in [
+            "/etc", "/var", "/tmp", "/cores",
+            "/private/etc", "/private/var", "/private/tmp", "/private/cores",
+            "/var/db", "/private/var/db",
+        ] {
             XCTAssertEqual(verdict(p), .blocked(reason: .systemDomain), "expected \(p) blocked")
         }
     }
@@ -67,7 +71,8 @@ final class ProtectedPathPolicyTests: XCTestCase {
     }
 
     func testScanRootChildIsAllowed() {
-        XCTAssertEqual(verdict("/Users/tester/Projects/build", scanRoot: "/Users/tester/Projects"), .allowed)
+        XCTAssertEqual(
+            verdict("/Users/tester/Projects/build", scanRoot: "/Users/tester/Projects"), .allowed)
     }
 
     func testProtectedScanRootStaysBlockedEvenIfItIsTheRoot() {
@@ -78,7 +83,8 @@ final class ProtectedPathPolicyTests: XCTestCase {
     func testVerdictFlags() {
         XCTAssertTrue(ProtectionVerdict.blocked(reason: .systemRoot).isBlocked)
         XCTAssertFalse(ProtectionVerdict.allowed.isBlocked)
-        XCTAssertTrue(ProtectionVerdict.needsExplicitConfirm(reason: .scanRootItself).isAllowedToAttempt)
+        XCTAssertTrue(
+            ProtectionVerdict.needsExplicitConfirm(reason: .scanRootItself).isAllowedToAttempt)
         XCTAssertFalse(ProtectionVerdict.blocked(reason: .systemDomain).isAllowedToAttempt)
     }
 

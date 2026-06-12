@@ -28,7 +28,7 @@ struct TreemapView: View {
 
     private var layoutSignature: String {
         "\(vm.focusNodeID ?? "")|\(Int(canvasSize.width))x\(Int(canvasSize.height))|"
-        + "\(settings.collapseTinySegments)|\(settings.useAllocatedSize)|\(vm.store.removedIDs.count)"
+            + "\(settings.collapseTinySegments)|\(settings.useAllocatedSize)|\(vm.store.removedIDs.count)"
     }
 
     var body: some View {
@@ -45,7 +45,8 @@ struct TreemapView: View {
                         }
                     }
                     .gesture(SpatialTapGesture(count: 1).onEnded { handleTap($0.location) })
-                    .highPriorityGesture(SpatialTapGesture(count: 2).onEnded { handleDoubleTap($0.location) })
+                    .highPriorityGesture(
+                        SpatialTapGesture(count: 2).onEnded { handleDoubleTap($0.location) })
 
                 if let tile = hoveredTile {
                     tooltip(for: tile)
@@ -65,9 +66,10 @@ struct TreemapView: View {
     }
 
     private func layoutRect(_ size: CGSize) -> CGRect {
-        CGRect(x: Self.inset, y: Self.inset,
-               width: max(0, size.width - 2 * Self.inset),
-               height: max(0, size.height - 2 * Self.inset))
+        CGRect(
+            x: Self.inset, y: Self.inset,
+            width: max(0, size.width - 2 * Self.inset),
+            height: max(0, size.height - 2 * Self.inset))
     }
 
     private func recompute() async {
@@ -81,7 +83,8 @@ struct TreemapView: View {
         let rect = layoutRect(canvasSize)
         let excluding = vm.store.removedIDs
         tiles = await Task.detached(priority: .userInitiated) {
-            TreemapLayoutEngine.layout(focus: focus, rect: rect, options: options, excludingIDs: excluding)
+            TreemapLayoutEngine.layout(
+                focus: focus, rect: rect, options: options, excludingIDs: excluding)
         }.value
     }
 
@@ -93,13 +96,15 @@ struct TreemapView: View {
             let isHovered = tile.id == hoveredTileID
             let isParent = tile.nodeID.map { parents.contains($0) } ?? false
             let rounded = Path(roundedRect: tile.rect, cornerRadius: 2)
-            var color = RuntahPalette.color(for: tile, colorScheme: colorScheme,
-                                            isSelected: isSelected, isHovered: isHovered)
+            var color = RuntahPalette.color(
+                for: tile, colorScheme: colorScheme,
+                isSelected: isSelected, isHovered: isHovered)
             // Folder tiles that contain children render dimmer (children sit on top).
             if isParent && !isSelected { color = color.opacity(0.55) }
             context.fill(rounded, with: .color(color))
-            context.stroke(rounded, with: .color(RuntahPalette.stroke(colorScheme: colorScheme)),
-                           lineWidth: isParent ? 1 : 0.5)
+            context.stroke(
+                rounded, with: .color(RuntahPalette.stroke(colorScheme: colorScheme)),
+                lineWidth: isParent ? 1 : 0.5)
             if isSelected {
                 context.stroke(rounded, with: .color(.primary), lineWidth: 2)
             }
@@ -117,7 +122,8 @@ struct TreemapView: View {
         } else {
             guard r.width > 52, r.height > 24 else { return }
             let name = Text(tile.displayName).font(.system(size: 10))
-            let sizeText = Text(ByteSizeFormatter.string(tile.byteSize)).font(.system(size: 9)).foregroundStyle(.secondary)
+            let sizeText = Text(ByteSizeFormatter.string(tile.byteSize)).font(.system(size: 9))
+                .foregroundStyle(.secondary)
             context.draw(name, at: CGPoint(x: r.midX, y: r.midY - 6))
             context.draw(sizeText, at: CGPoint(x: r.midX, y: r.midY + 7))
         }
@@ -135,7 +141,7 @@ struct TreemapView: View {
         if let tile = TreemapLayoutEngine.hitTest(tiles, at: location) {
             if tile.isDrillable, let id = tile.nodeID { vm.drill(into: id) }
         } else {
-            vm.goToParent() // double-click empty margin → go up
+            vm.goToParent()  // double-click empty margin → go up
         }
     }
 

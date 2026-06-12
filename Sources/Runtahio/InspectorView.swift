@@ -45,10 +45,13 @@ struct InspectorView: View {
                 HStack(spacing: 6) {
                     chip(node.type.displayLabel, color: .accentColor)
                     if node.isHidden { chip("Hidden", color: .gray) }
-                    chip(node.isReadable ? "Readable" : "Not readable", color: node.isReadable ? .green : .orange)
+                    chip(
+                        node.isReadable ? "Readable" : "Not readable",
+                        color: node.isReadable ? .green : .orange)
                 }
                 if node.isContainer {
-                    LabeledContent("Contains",
+                    LabeledContent(
+                        "Contains",
                         value: "\(node.fileCount) files · \(node.folderCount) folders")
                 }
                 LabeledContent("Depth", value: "\(node.depth)")
@@ -67,16 +70,24 @@ struct InspectorView: View {
             }
 
             Section("Actions") {
-                Button { FileActions.revealInFinder(node.url) } label: {
+                Button {
+                    FileActions.revealInFinder(node.url)
+                } label: {
                     Label("Reveal in Finder", systemImage: "magnifyingglass")
                 }
-                Button { FileActions.open(node.url) } label: {
+                Button {
+                    FileActions.open(node.url)
+                } label: {
                     Label("Open", systemImage: "arrow.up.forward.app")
                 }
-                Button { FileActions.quickLook(node.url) } label: {
+                Button {
+                    FileActions.quickLook(node.url)
+                } label: {
                     Label("Quick Look", systemImage: "eye")
                 }
-                Button { FileActions.copyPath(node.url) } label: {
+                Button {
+                    FileActions.copyPath(node.url)
+                } label: {
                     Label("Copy Path", systemImage: "doc.on.clipboard")
                 }
                 Divider()

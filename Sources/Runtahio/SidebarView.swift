@@ -38,7 +38,8 @@ struct SidebarView: View {
             if appState.scan.rootNode != nil {
                 Section(s.analyze) {
                     ForEach(ContentMode.allCases) { mode in
-                        sidebarButton(localizedTitle(mode), systemImage: mode.systemImage, mode: mode)
+                        sidebarButton(
+                            localizedTitle(mode), systemImage: mode.systemImage, mode: mode)
                     }
                 }
             }
@@ -49,7 +50,9 @@ struct SidebarView: View {
         }
     }
 
-    private func sidebarButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    private func sidebarButton(_ title: String, systemImage: String, action: @escaping () -> Void)
+        -> some View
+    {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -63,9 +66,14 @@ struct SidebarView: View {
     }
 
     /// A view-mode button that shows a checkmark when its mode is active.
-    private func sidebarButton(_ title: String, systemImage: String, mode: ContentMode) -> some View {
+    private func sidebarButton(_ title: String, systemImage: String, mode: ContentMode) -> some View
+    {
         Button {
-            if mode == .explorer { appState.scan.showExplorer() } else { appState.scan.setMode(mode) }
+            if mode == .explorer {
+                appState.scan.showExplorer()
+            } else {
+                appState.scan.setMode(mode)
+            }
         } label: {
             HStack {
                 Label(title, systemImage: systemImage)
@@ -108,7 +116,9 @@ struct SidebarView: View {
                 }
                 Spacer(minLength: 4)
                 if volume.canEject {
-                    Button { appState.eject(volume) } label: {
+                    Button {
+                        appState.eject(volume)
+                    } label: {
                         Image(systemName: "eject")
                     }
                     .buttonStyle(.borderless)

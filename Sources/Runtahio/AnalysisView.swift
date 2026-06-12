@@ -39,13 +39,15 @@ private struct AnalysisFileList: View {
         @Bindable var vm = vm
         Group {
             if files.isEmpty {
-                ContentUnavailableView("Nothing to show", systemImage: "tray",
-                                       description: Text("No files matched this view."))
+                ContentUnavailableView(
+                    "Nothing to show", systemImage: "tray",
+                    description: Text("No files matched this view."))
             } else {
                 Table(of: DiskNode.self, selection: $vm.selectedNodeID) {
                     TableColumn("Name") { node in
                         HStack(spacing: 6) {
-                            Image(systemName: NodeUI.icon(for: node)).foregroundStyle(NodeUI.iconColor(for: node))
+                            Image(systemName: NodeUI.icon(for: node)).foregroundStyle(
+                                NodeUI.iconColor(for: node))
                             Text(node.name).lineLimit(1)
                         }
                     }
@@ -55,8 +57,10 @@ private struct AnalysisFileList: View {
                     }
                     .width(min: 64, ideal: 88, max: 120)
                     TableColumn("Modified") { node in
-                        Text(node.modifiedDate?.formatted(date: .abbreviated, time: .omitted) ?? "—")
-                            .foregroundStyle(.secondary)
+                        Text(
+                            node.modifiedDate?.formatted(date: .abbreviated, time: .omitted) ?? "—"
+                        )
+                        .foregroundStyle(.secondary)
                     }
                     .width(min: 90, ideal: 130, max: 180)
                     TableColumn("Path") { node in
@@ -68,13 +72,20 @@ private struct AnalysisFileList: View {
                     ForEach(files) { TableRow($0) }
                 }
                 .contextMenu(forSelectionType: DiskNode.ID.self) { ids in
-                    if let id = ids.first, let node = vm.store.node(id: id) { NodeContextMenu(node: node) }
+                    if let id = ids.first, let node = vm.store.node(id: id) {
+                        NodeContextMenu(node: node)
+                    }
                 } primaryAction: { ids in
-                    if let id = ids.first, let node = vm.store.node(id: id) { FileActions.quickLook(node.url) }
+                    if let id = ids.first, let node = vm.store.node(id: id) {
+                        FileActions.quickLook(node.url)
+                    }
                 }
             }
         }
-        .task(id: "\(mode.rawValue)|\(vm.focusNodeID ?? "")|\(vm.store.removedIDs.count)|\(settings.useAllocatedSize)") {
+        .task(
+            id:
+                "\(mode.rawValue)|\(vm.focusNodeID ?? "")|\(vm.store.removedIDs.count)|\(settings.useAllocatedSize)"
+        ) {
             await recompute()
         }
     }
@@ -87,11 +98,13 @@ private struct AnalysisFileList: View {
         let computed = await Task.detached(priority: .userInitiated) {
             switch mode {
             case .oldest:
-                return ScanAnalytics.oldestFiles(in: root, limit: AnalysisView.fileLimit,
-                                                 useAllocated: useAllocated, excluding: excluding)
+                return ScanAnalytics.oldestFiles(
+                    in: root, limit: AnalysisView.fileLimit,
+                    useAllocated: useAllocated, excluding: excluding)
             default:
-                return ScanAnalytics.largestFiles(in: root, limit: AnalysisView.fileLimit,
-                                                  useAllocated: useAllocated, excluding: excluding)
+                return ScanAnalytics.largestFiles(
+                    in: root, limit: AnalysisView.fileLimit,
+                    useAllocated: useAllocated, excluding: excluding)
             }
         }.value
         files = computed
@@ -117,20 +130,27 @@ private struct CategoryBreakdownView: View {
                 List(stats) { stat in
                     HStack(spacing: 10) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(RuntahPalette.swatch(for: stat.category, colorScheme: colorScheme))
+                            .fill(
+                                RuntahPalette.swatch(for: stat.category, colorScheme: colorScheme)
+                            )
                             .frame(width: 14, height: 14)
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
                                 Text(stat.category.displayLabel)
                                 Spacer()
-                                Text("\(ByteSizeFormatter.string(stat.totalSize)) · \(stat.fileCount.formatted()) files")
-                                    .font(.callout).foregroundStyle(.secondary).monospacedDigit()
+                                Text(
+                                    "\(ByteSizeFormatter.string(stat.totalSize)) · \(stat.fileCount.formatted()) files"
+                                )
+                                .font(.callout).foregroundStyle(.secondary).monospacedDigit()
                             }
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     Capsule().fill(.quaternary).frame(height: 6)
                                     Capsule()
-                                        .fill(RuntahPalette.swatch(for: stat.category, colorScheme: colorScheme))
+                                        .fill(
+                                            RuntahPalette.swatch(
+                                                for: stat.category, colorScheme: colorScheme)
+                                        )
                                         .frame(width: geo.size.width * barFraction(stat), height: 6)
                                 }
                             }
@@ -141,7 +161,10 @@ private struct CategoryBreakdownView: View {
                 }
             }
         }
-        .task(id: "types|\(vm.focusNodeID ?? "")|\(vm.store.removedIDs.count)|\(settings.useAllocatedSize)") {
+        .task(
+            id:
+                "types|\(vm.focusNodeID ?? "")|\(vm.store.removedIDs.count)|\(settings.useAllocatedSize)"
+        ) {
             await recompute()
         }
     }
@@ -155,7 +178,8 @@ private struct CategoryBreakdownView: View {
         let useAllocated = settings.useAllocatedSize
         let excluding = vm.store.removedIDs
         stats = await Task.detached(priority: .userInitiated) {
-            ScanAnalytics.categoryBreakdown(in: root, useAllocated: useAllocated, excluding: excluding)
+            ScanAnalytics.categoryBreakdown(
+                in: root, useAllocated: useAllocated, excluding: excluding)
         }.value
     }
 }
@@ -172,13 +196,16 @@ private struct DuplicatesView: View {
     var body: some View {
         Group {
             if groups.isEmpty {
-                ContentUnavailableView("No duplicates found", systemImage: "doc.on.doc",
-                                       description: Text("No same-name, same-size files of 4 KB or larger."))
+                ContentUnavailableView(
+                    "No duplicates found", systemImage: "doc.on.doc",
+                    description: Text("No same-name, same-size files of 4 KB or larger."))
             } else {
                 List {
                     Section {
-                        Text("\(groups.count) duplicate sets · up to \(ByteSizeFormatter.string(totalReclaimable)) reclaimable")
-                            .font(.callout).foregroundStyle(.secondary)
+                        Text(
+                            "\(groups.count) duplicate sets · up to \(ByteSizeFormatter.string(totalReclaimable)) reclaimable"
+                        )
+                        .font(.callout).foregroundStyle(.secondary)
                     }
                     ForEach(groups) { group in
                         DisclosureGroup {
@@ -190,7 +217,10 @@ private struct DuplicatesView: View {
                                     Spacer()
                                     Button("Add") { appState.addToBasket(node) }
                                         .controlSize(.small)
-                                        .disabled(appState.policy.isProtected(node.url, scanRoot: vm.scanRoot).isBlocked)
+                                        .disabled(
+                                            appState.policy.isProtected(
+                                                node.url, scanRoot: vm.scanRoot
+                                            ).isBlocked)
                                 }
                             }
                         } label: {
@@ -199,8 +229,10 @@ private struct DuplicatesView: View {
                                 Text(group.name).lineLimit(1)
                                 Text("× \(group.count)").foregroundStyle(.secondary)
                                 Spacer()
-                                Text("\(ByteSizeFormatter.string(group.size)) each · \(ByteSizeFormatter.string(group.reclaimable)) reclaimable")
-                                    .font(.callout).foregroundStyle(.secondary).monospacedDigit()
+                                Text(
+                                    "\(ByteSizeFormatter.string(group.size)) each · \(ByteSizeFormatter.string(group.reclaimable)) reclaimable"
+                                )
+                                .font(.callout).foregroundStyle(.secondary).monospacedDigit()
                                 Button("Add extras") { appState.addNodesToBasket(group.extras) }
                                     .controlSize(.small)
                                     .help("Add all but one copy to the Runtah Basket")
@@ -219,7 +251,8 @@ private struct DuplicatesView: View {
         guard let root = vm.rootNode else { groups = []; return }
         let excluding = vm.store.removedIDs
         groups = await Task.detached(priority: .userInitiated) {
-            ScanAnalytics.duplicateGroups(in: root, minSize: AnalysisView.duplicateMinSize, excluding: excluding)
+            ScanAnalytics.duplicateGroups(
+                in: root, minSize: AnalysisView.duplicateMinSize, excluding: excluding)
         }.value
     }
 }
@@ -233,8 +266,9 @@ private struct InaccessibleListView: View {
     var body: some View {
         Group {
             if nodes.isEmpty {
-                ContentUnavailableView("Nothing inaccessible", systemImage: "checkmark.shield",
-                                       description: Text("Runtahio could read everything in this scan."))
+                ContentUnavailableView(
+                    "Nothing inaccessible", systemImage: "checkmark.shield",
+                    description: Text("Runtahio could read everything in this scan."))
             } else {
                 List {
                     Section {
@@ -244,7 +278,8 @@ private struct InaccessibleListView: View {
                     Section("\(nodes.count) inaccessible items") {
                         ForEach(nodes) { node in
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(node.url.path(percentEncoded: false)).lineLimit(1).truncationMode(.middle)
+                                Text(node.url.path(percentEncoded: false)).lineLimit(1)
+                                    .truncationMode(.middle)
                                 if let error = node.scanError {
                                     Text(error.humanMessage).font(.caption).foregroundStyle(.orange)
                                 }
