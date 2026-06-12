@@ -189,6 +189,9 @@ To scan system-protected locations, Runtahio needs **Full Disk Access**:
 2. Add the `Runtahio.app` you launched and turn it on.
 3. Quit and reopen Runtahio, then rescan.
 
+See the **[Full Disk Access troubleshooting guide](docs/full-disk-access.md)** if a scan
+still reports inaccessible items, or the grant doesn't seem to stick.
+
 > **Honest limitation:** because the app is ad-hoc signed, each time you *rebuild* it from
 > source macOS sees it as a new app and you may need to grant Full Disk Access again. Use the
 > `.app` bundle (not the raw `swift run` binary) for a stable identity. Folders you own (like
