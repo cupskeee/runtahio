@@ -4,15 +4,16 @@ Image assets referenced from the root `README.md` and the repo's social preview.
 
 | File | Shows | Status |
 | ---- | ----- | ------ |
-| `runtah-map.png` | The radial **Runtah Map** sunburst | ✅ in README (Demo) |
+| `demo.gif` | Looping demo: Runtah Map → treemap → File Types | ✅ in README (Demo) |
 | `treemap.png` | The squarified **treemap** view | ✅ in README (Screenshots) |
 | `file-types.png` | The **File Types** analysis view | ✅ in README (Screenshots) |
+| `runtah-map.png` | The radial **Runtah Map** sunburst | standalone asset |
 | `social-preview.png` | 1280×640 repo social card | ✅ (upload via repo Settings) |
-| `demo.gif` | ~15s demo: scan → drill → safe cleanup | ⏳ see [#2](https://github.com/cupskeee/runtahio/issues/2) |
 
 ## Demo GIF (`demo.gif`)
 
-The README's **Demo** section is ready for a short (~15s) screen recording. Suggested
+The README ships an auto-generated demo (Runtah Map → treemap → File Types). A fuller
+hand-recorded clip showing the full scan-and-cleanup flow would be even better — suggested
 storyboard:
 
 1. Open Runtahio.

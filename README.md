@@ -26,11 +26,10 @@ Prefer building from source? See [Build from source](#build-from-source).
 ## Demo
 
 <p align="center">
-  <img src="docs/images/runtah-map.png" alt="Runtahio showing the Runtah Map of a scanned folder" width="860">
+  <img src="docs/images/demo.gif" alt="Runtahio demo: the Runtah Map, treemap, and File Types analysis of one scan" width="860">
 </p>
 
-▶️ A short interactive demo GIF (scan → drill in → safe cleanup) is on the way — tracked in
-[#2](https://github.com/cupskeee/runtahio/issues/2).
+<p align="center"><em>One scan, three views — the radial <strong>Runtah Map</strong>, the squarified <strong>treemap</strong>, and the <strong>File Types</strong> breakdown.</em></p>
 
 ## Why Runtahio?
 
