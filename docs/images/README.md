@@ -27,6 +27,10 @@ Drop screenshots/GIFs here and reference them from the root `README.md`. Suggest
 
 ## Social preview
 
-GitHub's link-unfurl image (Open Graph) is **not** set by these files — upload a 1280×640
-image under **Settings → General → Social preview** (web UI only; there's no REST API for
-it). A cropped Runtah Map on a dark background makes a good one.
+**`social-preview.png`** (1280×640) is a ready-made repo card — the app icon, wordmark,
+tagline, and feature pills on a dark brand background, with all content inside GitHub's
+recommended 40px safe margin. Upload it under **Settings → General → Social preview**
+(web UI only; there's no REST API for it).
+
+It's generated from an HTML template rendered headlessly; to tweak it, re-render the card
+at 1280×640 and re-export here.

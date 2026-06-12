@@ -14,3 +14,6 @@ Package.resolved
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 DerivedData/
+
+# Playwright MCP scratch
+.playwright-mcp/
