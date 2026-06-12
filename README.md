@@ -20,19 +20,18 @@ after a strong confirmation. Everything happens locally — no network, no telem
 
 ## Screenshots
 
-> _Screenshots coming soon._ See [`docs/images/`](docs/images/) for the planned shots and
-> capture tips; uncomment the tags below once the images are added.
+<p align="center">
+  <img src="docs/images/runtah-map.png" alt="Runtahio Runtah Map — radial sunburst of disk usage" width="820"><br>
+  <em>The radial <strong>Runtah Map</strong> — angle ∝ size, colored by file type, with a synchronized file table.</em>
+</p>
 
-<!--
 <p align="center">
-  <img src="docs/images/runtah-map.png" alt="Runtah Map sunburst" width="800"><br>
-  <em>The radial Runtah Map — angle ∝ size, colored by file type.</em>
+  <img src="docs/images/treemap.png" alt="Runtahio squarified treemap" width="410">
+  <img src="docs/images/file-types.png" alt="Runtahio File Types analysis breakdown" width="410"><br>
+  <em>The squarified <strong>treemap</strong> (left) and the <strong>File Types</strong> analysis view (right).</em>
 </p>
-<p align="center">
-  <img src="docs/images/treemap.png" alt="Treemap view" width="800"><br>
-  <em>The squarified treemap, switchable per scan.</em>
-</p>
--->
+
+> Screenshots use a synthetic sample folder — no real files. See [`docs/images/`](docs/images/).
 
 ## What Runtahio does
 
