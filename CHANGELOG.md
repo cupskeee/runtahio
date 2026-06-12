@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+- **Homebrew tap** — `brew tap cupskeee/runtahio && brew install --cask runtahio`.
+- **Benchmark harness** — a `RuntahioBench` target and `Scripts/benchmark.sh` that measure
+  scan time and peak memory against synthetic file trees.
+- **App screenshots** and a branded **social-preview** card.
+- README **Performance** section with real measured numbers.
+
+### Changed
+
+- Reorganized the README into a landing-page structure (Download, Demo, Why Runtahio?,
+  comparison table, Install with Homebrew, Safety guarantees, Roadmap).
 
 ## [0.1.0] - 2026-06-12
 

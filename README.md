@@ -4,36 +4,54 @@
 
 [![CI](https://github.com/cupskeee/runtahio/actions/workflows/ci.yml/badge.svg)](https://github.com/cupskeee/runtahio/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Platform: macOS 26+](https://img.shields.io/badge/platform-macOS%2026%2B-blue)
+![Platform: macOS](https://img.shields.io/badge/platform-macOS-blue)
+![Apple Silicon](https://img.shields.io/badge/arch-Apple%20Silicon-lightgrey)
 ![Swift 6.2](https://img.shields.io/badge/Swift-6.2-orange)
 
-Runtahio is an original, native macOS disk-usage visualizer and safe cleanup utility. It
-scans a folder or volume, shows what is taking up space with an interactive radial **Runtah
-Map**, lets you inspect files and folders, and safely moves unwanted items to the Trash
-after a strong confirmation. Everything happens locally — no network, no telemetry.
+Runtahio is a **free, open-source, local-only** macOS disk-usage visualizer and safe cleanup
+utility. It scans a folder or volume, shows what's taking up space with an interactive radial
+**Runtah Map** (or a treemap), lets you inspect files, and safely moves unwanted items to the
+Trash after a strong confirmation. Everything happens on your Mac — no network, no telemetry.
 
-> _“Runtah”_ is Sundanese/Indonesian-flavored wording for trash or clutter. The UI is
-> mainly English, with a light Indonesian flavor available in the branding and status
-> microcopy.
+> _"Runtah"_ is Sundanese/Indonesian-flavored wording for trash or clutter. The UI is mainly
+> English, with a light Indonesian flavor available in the branding and status microcopy.
 
----
+## Download
 
-## Screenshots
+**[⬇ Download the latest release](https://github.com/cupskeee/runtahio/releases/latest)** for
+macOS (Apple Silicon) — or install with [Homebrew](#install).
+
+Prefer building from source? See [Build from source](#build-from-source).
+
+## Demo
 
 <p align="center">
-  <img src="docs/images/runtah-map.png" alt="Runtahio Runtah Map — radial sunburst of disk usage" width="820"><br>
-  <em>The radial <strong>Runtah Map</strong> — angle ∝ size, colored by file type, with a synchronized file table.</em>
+  <img src="docs/images/runtah-map.png" alt="Runtahio showing the Runtah Map of a scanned folder" width="860">
 </p>
 
-<p align="center">
-  <img src="docs/images/treemap.png" alt="Runtahio squarified treemap" width="410">
-  <img src="docs/images/file-types.png" alt="Runtahio File Types analysis breakdown" width="410"><br>
-  <em>The squarified <strong>treemap</strong> (left) and the <strong>File Types</strong> analysis view (right).</em>
-</p>
+▶️ A short interactive demo GIF (scan → drill in → safe cleanup) is on the way — tracked in
+[#2](https://github.com/cupskeee/runtahio/issues/2).
 
-> Screenshots use a synthetic sample folder — no real files. See [`docs/images/`](docs/images/).
+## Why Runtahio?
 
-## What Runtahio does
+- **Free and open source** (MIT) — no paywall, no account.
+- **Native SwiftUI Mac app** — not Electron, not a web wrapper.
+- **Local-only** — no network, telemetry, or analytics (guarded by a test).
+- **Metadata-only scanning** — never reads your file contents.
+- **Trash-only cleanup** — no permanent-delete path; protected system paths can't be staged.
+- **Two visualizations** — the radial Runtah Map and a squarified treemap.
+- **Built-in analysis** — largest files, old files, file types, duplicates, inaccessible items.
+- **English and Bahasa Indonesia.**
+
+### Compared with other tools
+
+| Tool | How Runtahio differs |
+|---|---|
+| **DaisyDisk** | Commercial and closed-source; Runtahio is free, open-source, and local-only. |
+| **GrandPerspective** | A great free treemap viewer; Runtahio adds a radial map, safe Trash-only cleanup, duplicate detection, and dedicated analysis views. |
+| **ncdu / du** | Terminal tools; Runtahio is a native graphical app with interactive visualizations and one-click safe cleanup. |
+
+## Features
 
 - **Scan** any folder or volume recursively, off the main thread, reading *metadata only*
   (never file contents). It doesn't follow symlinks, and excludes `.nofollow` by default —
@@ -62,66 +80,106 @@ after a strong confirmation. Everything happens locally — no network, no telem
   Indonesian also turns on the playful Sundanese status microcopy).
 - A first-run **onboarding** screen and an original app icon round out the experience.
 
-## Requirements
+## Screenshots
 
-- macOS 26 or later (built and verified on macOS 26.x, Apple Silicon).
-- Xcode 26 / Swift 6.2 toolchain (for building from source).
-- No third-party dependencies. No network access.
+<p align="center">
+  <img src="docs/images/treemap.png" alt="Runtahio squarified treemap" width="410">
+  <img src="docs/images/file-types.png" alt="Runtahio File Types analysis breakdown" width="410"><br>
+  <em>The squarified <strong>treemap</strong> (left) and the <strong>File Types</strong> analysis view (right).</em>
+</p>
 
-## Build & run
+> Screenshots use a synthetic sample folder — no real files. See [`docs/images/`](docs/images/).
 
-Runtahio is a single Swift Package with three targets: `RuntahioCore` (pure, testable
-logic), `Runtahio` (the SwiftUI app), and `RuntahioCoreTests`.
+## Install
+
+### Homebrew (recommended)
 
 ```bash
-# Run the unit tests (headless, no network):
-swift test
-
-# Build a real, launchable .app bundle (recommended way to run):
-./Scripts/make-app.sh            # release build, ad-hoc signed → ./Runtahio.app
-./Scripts/make-app.sh --run      # build and launch
-open ./Runtahio.app
-
-# Or open the package in Xcode and run the Runtahio scheme:
-open Package.swift
+brew tap cupskeee/runtahio
+brew install --cask runtahio
 ```
 
-> **Why the `.app` bundle?** A bare `swift run` executable launches as a *background*
-> process (no menu bar, never frontmost) and its binary path changes every build, so
-> macOS's Full Disk Access grant never sticks to it. `Scripts/make-app.sh` wraps the
-> binary into a `Runtahio.app` with a fixed bundle identifier (`com.runtahio.app`) and an
-> ad-hoc signature, giving it a real menu bar, a frontmost window, and a stable identity
-> for Full Disk Access.
+> The app is ad-hoc signed and **not notarized**, so on first launch macOS Gatekeeper may
+> block it. Right-click **Runtahio.app → Open**, or remove the quarantine flag:
+> `xattr -dr com.apple.quarantine /Applications/Runtahio.app` — or install without it:
+> `brew install --cask --no-quarantine runtahio`.
 
-`make-app.sh` options: `--debug` (debug build), `--no-sign` (skip codesign), `--run`.
+### Direct download
 
-## Privacy
+[Download the latest release](https://github.com/cupskeee/runtahio/releases/latest), unzip,
+and move **Runtahio.app** to `/Applications`. The same Gatekeeper note applies.
 
-> **Runtahio scans file metadata locally on your Mac. It does not upload file names,
-> paths, sizes, or contents.**
+### Build from source
 
-- No network requests of any kind. No telemetry. No analytics.
-- Runtahio reads only filesystem *metadata* (`URLResourceValues`) — it never opens or
-  reads the contents of your files, and never materializes cloud (dataless) files.
+Runtahio is a single Swift Package with `RuntahioCore` (pure, testable logic), `Runtahio`
+(the SwiftUI app), `RuntahioBench` (a headless benchmark), and `RuntahioCoreTests`.
+
+```bash
+swift test                       # run the headless unit tests (no network)
+./Scripts/make-app.sh --run      # build the signed .app bundle and launch it
+open Package.swift               # or open in Xcode and run the Runtahio scheme
+```
+
+> **Why the `.app` bundle?** A bare `swift run` executable launches as a *background* process
+> (no menu bar, never frontmost) and its binary path changes every build, so macOS's Full
+> Disk Access grant never sticks. `Scripts/make-app.sh` wraps the binary into a `Runtahio.app`
+> with a fixed bundle identifier (`com.runtahio.app`) and an ad-hoc signature, giving it a
+> real menu bar, a frontmost window, and a stable identity. Options: `--debug`, `--no-sign`,
+> `--run`.
+
+## Privacy & Safety
+
+> **Runtahio scans file metadata locally on your Mac. It does not upload file names, paths,
+> sizes, or contents.**
+
+### Safety guarantees
+
+Runtahio is designed to avoid accidental data loss:
+
+- **Never permanently deletes** — uses the macOS **Trash only** (`FileManager.trashItem`);
+  trashed items stay recoverable.
+- **Always confirms** before moving anything to Trash (item count, total size, largest
+  paths) — even if "confirm before Trash" is turned off in Settings.
+- **Protected system paths** — the disk root, `/System`, `/Library`, `/usr`, volume mount
+  roots, your entire Home folder, and more — **cannot be added** to the basket.
+- **Never reads file contents** — only metadata (`URLResourceValues`); never materializes
+  cloud (dataless) files.
+- **No network** — never sends file names, paths, sizes, or contents anywhere. No telemetry,
+  no analytics.
+- **Tested** — the protected-path matrix, the Trash flow (with a recoverable-copy assertion
+  proving nothing is permanently deleted), privacy/wording guardrails, and scan correctness.
+
+### Privacy details
+
 - The only external link in the app is a local System Settings deep link
-  (`x-apple.systempreferences:`) to help you grant Full Disk Access. A unit test guards
-  against any `http(s)` URLs slipping into the codebase.
+  (`x-apple.systempreferences:`) to help you grant Full Disk Access. A unit test rejects any
+  `http(s)` URL in the codebase.
 
-## Safety behavior
+### How cleanup works
 
-- Cleanup is **Move to Trash only** — Runtahio uses `FileManager.trashItem(...)` and never
-  permanently deletes. Trashed items remain recoverable from the macOS Trash.
-- Nothing is ever trashed from a map click. Items must first be added to the **Runtah
-  Basket**, and the basket's **Move to Trash** always shows a confirmation dialog (with the
-  item count, total size, and the largest paths) — even if "confirm before Trash" is
-  turned off in Settings.
-- **Protected paths can't be added to the basket.** Component-wise path matching blocks the
-  disk root (`/`), system domains (`/System`, `/Library`, `/usr`, `/bin`, `/sbin`, `/etc`,
-  `/var`, `/private/...`, …), volume mount roots (`/Volumes/<name>`), and your entire Home
-  folder — while still allowing subfolders like `~/Downloads`. Adding the scanned root
-  itself requires an explicit extra confirmation.
-- The basket de-duplicates nested items, so totals never double-count, and per-item trash
+- Nothing is trashed from a map click — items go into the **Runtah Basket** first.
+- The basket de-duplicates nested items so totals never double-count, and per-item trash
   failures are isolated and reported rather than aborting the whole operation.
+
+## Performance
+
+Runtahio scans **metadata only** — it never opens or reads file contents — so speed scales
+with the number of files, not their size.
+
+| Synthetic target | Files | Folders | Scan time | Peak memory |
+|---|---:|---:|---:|---:|
+| 10,000 files | 10,000 | 51 | 0.18 s | 31 MB |
+| 100,000 files | 100,000 | 510 | 1.64 s | 207 MB |
+| 250,000 files | 250,000 | 1,275 | 5.24 s | 503 MB |
+
+Measured on an Apple M4 Pro (48 GB), macOS 26.5, release build, against synthetic trees from
+[`Scripts/benchmark.sh`](Scripts/benchmark.sh). The full node index is held in memory
+(~2 KB/file), so very large scans use proportional memory. Numbers vary by machine and disk.
+
+## Requirements
+
+- **macOS 26 (Tahoe) or later**, Apple Silicon.
+- Building from source: Xcode 26 / Swift 6.2. No third-party dependencies.
 
 ## Full Disk Access
 
@@ -132,9 +190,9 @@ To scan system-protected locations, Runtahio needs **Full Disk Access**:
 3. Quit and reopen Runtahio, then rescan.
 
 > **Honest limitation:** because the app is ad-hoc signed, each time you *rebuild* it from
-> source macOS sees it as a new app and you may need to grant Full Disk Access again. Use
-> the `.app` bundle (not the raw `swift run` binary) for a stable identity. Folders you own
-> (like `~/Downloads`) scan fine without Full Disk Access.
+> source macOS sees it as a new app and you may need to grant Full Disk Access again. Use the
+> `.app` bundle (not the raw `swift run` binary) for a stable identity. Folders you own (like
+> `~/Downloads`) scan fine without Full Disk Access.
 
 ## Keyboard shortcuts
 
@@ -153,8 +211,8 @@ To scan system-protected locations, Runtahio needs **Full Disk Access**:
 | ⌘, | Settings |
 
 Double-click a folder (in the map or table) to drill in; the table's Preview and the
-inspector's Quick Look button open a Quick Look preview (falling back to Open if the
-preview panel is unavailable).
+inspector's Quick Look button open a Quick Look preview (falling back to Open if the preview
+panel is unavailable).
 
 ## Architecture
 
@@ -177,6 +235,7 @@ Sources/RuntahioCore/              Pure, testable logic (no SwiftUI, no @main)
 Sources/Runtahio/                  SwiftUI app: RuntahioApp + views + AppKit/QuickLook
   RuntahMapView, TreemapView       The two visualizations (SwiftUI Canvas)
   AnalysisView, OnboardingView…    Analysis views, onboarding, shared NodeUI/menus
+Sources/RuntahioBench/             Headless scanner benchmark (see Scripts/benchmark.sh)
 Tests/RuntahioCoreTests/           85 XCTest cases over the Core library
 Scripts/make-app.sh                Wraps the binary into a signed Runtahio.app (+ icon)
 Scripts/generate-icon.swift        Renders the original "bloom" app iconset
@@ -198,29 +257,43 @@ files (with a recoverable-copy assertion proving nothing is permanently deleted)
 classification, localization (English/Indonesian), byte formatting, and privacy/wording
 guardrails.
 
+## Roadmap
+
+- **Broader macOS support** — lower the deployment target below macOS 26 where the APIs allow.
+- **Homebrew** — graduate from the [tap](https://github.com/cupskeee/homebrew-runtahio) toward
+  an official Homebrew cask (needs Developer ID notarization).
+- Notarized, Developer-ID-signed releases (no Gatekeeper prompt).
+- Universal (Intel + Apple Silicon) build.
+- Compare two scans over time.
+- More localizations beyond English / Bahasa Indonesia.
+- Optional on-disk scan cache for very large volumes.
+- Accessibility improvements (VoiceOver on the visualizations).
+
+Want to help? See the
+[good first issues](https://github.com/cupskeee/runtahio/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+> Already shipped: the treemap + animated drill, external-drive handling with eject,
+> English/Indonesian localization, the largest/old/types/duplicates/inaccessible views,
+> JSON/CSV export, the app icon, onboarding, "Lapang Mode", CI + 85 tests, release
+> automation, a Homebrew tap, and a benchmark harness.
+
 ## Known limitations
 
 - Full Disk Access does not persist across rebuilds of an ad-hoc-signed binary (see above).
-- The full node index is held in memory; extremely large scans (many millions of files)
-  use proportional memory. There is no on-disk scan cache in this MVP.
+- The full node index is held in memory; extremely large scans (many millions of files) use
+  proportional memory. There is no on-disk scan cache yet.
 - The Runtah Map redraws on drill in/out rather than animating between states; very dense
   levels collapse tiny items into "Other" and the synchronized table is the accessible /
   high-density fallback.
 - Quick Look uses a best-effort panel bridge and falls back to "Open" if the preview panel
   can't attach.
-- Not sandboxed (so it can scan broadly and move items to Trash); not configured for App
-  Store distribution.
-
-## Future improvements
-
-Comparing two scans over time, more localizations beyond English/Indonesian, and a packaged
-signed release. (The treemap, animated drill transitions, external-drive handling with
-eject, English/Indonesian localization, the largest/old/types/duplicates views, JSON/CSV
-export, the app icon, onboarding, and the "Lapang Mode" summary are all implemented.)
+- Not sandboxed (so it can scan broadly and move items to Trash); not notarized / not
+  configured for App Store distribution.
 
 ## Contributing & community
 
-Contributions are welcome! Please start with:
+Contributions are welcome — including the [good first issues](https://github.com/cupskeee/runtahio/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+Please start with:
 
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to build, test, and submit changes, plus the
   project invariants (local-only, metadata-only, Trash-only, Swift 6 strict concurrency).
@@ -229,13 +302,17 @@ Contributions are welcome! Please start with:
 - **[CHANGELOG.md](CHANGELOG.md)** — notable changes per release.
 
 Bug reports and feature requests go through the
-[issue templates](https://github.com/cupskeee/runtahio/issues/new/choose). CI runs
-`swift build` and `swift test` on every push and pull request.
+[issue templates](https://github.com/cupskeee/runtahio/issues/new/choose). CI runs the build,
+tests, and `swift-format` lint on every push and pull request.
+
+## License
+
+Runtahio is released under the [MIT License](LICENSE).
 
 ## Disclaimer
 
-Runtahio is an original macOS storage visualizer. **It is not affiliated with, endorsed by,
-or derived from DaisyDisk**, and it does not copy DaisyDisk's name, branding, icon, colors,
+Runtahio is an original macOS storage visualizer. **It is not affiliated with, endorsed by, or
+derived from DaisyDisk**, and it does not copy DaisyDisk's name, branding, icon, colors,
 layout, wording, screenshots, or assets. It shares only the general idea of a visual
 disk-space analyzer. All processing is local; files are moved to the Trash only after your
 confirmation.

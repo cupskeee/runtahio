@@ -1,15 +1,31 @@
 # Screenshots & media
 
-Drop screenshots/GIFs here and reference them from the root `README.md`. Suggested set
-(the README has commented-out `<img>` tags ready for these names):
+Image assets referenced from the root `README.md` and the repo's social preview.
 
-| File | Shows |
-| ---- | ----- |
-| `runtah-map.png` | The radial **Runtah Map** sunburst on a real scan |
-| `treemap.png` | The squarified **treemap** view |
-| `analysis.png` | An analysis view (Largest / Duplicates / File Types) |
-| `onboarding.png` | The first-run onboarding screen |
-| `runtahio-demo.gif` | Optional: scan → drill → switch view (short loop) |
+| File | Shows | Status |
+| ---- | ----- | ------ |
+| `runtah-map.png` | The radial **Runtah Map** sunburst | ✅ in README (Demo) |
+| `treemap.png` | The squarified **treemap** view | ✅ in README (Screenshots) |
+| `file-types.png` | The **File Types** analysis view | ✅ in README (Screenshots) |
+| `social-preview.png` | 1280×640 repo social card | ✅ (upload via repo Settings) |
+| `demo.gif` | ~15s demo: scan → drill → safe cleanup | ⏳ see [#2](https://github.com/cupskeee/runtahio/issues/2) |
+
+## Demo GIF (`demo.gif`)
+
+The README's **Demo** section is ready for a short (~15s) screen recording. Suggested
+storyboard:
+
+1. Open Runtahio.
+2. Scan `~/Downloads` (⌘O).
+3. The **Runtah Map** appears; hover a couple of segments.
+4. Click a large folder — the file table syncs.
+5. Add an item to the **Runtah Basket** (⌘⌫).
+6. **Move to Trash** (⌘⇧⌫) and confirm.
+7. Show the "Freed X" / Lapang Mode tally.
+
+Record with [Kap](https://getkap.co) or QuickTime → `ffmpeg`/`gifski`; keep it short and
+looped, ~1600px wide, and a few MB max. Save it as `docs/images/demo.gif`, then swap the
+static image in the README's Demo section for it.
 
 ## Capture tips
 
