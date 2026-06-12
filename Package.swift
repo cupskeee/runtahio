@@ -8,6 +8,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "Runtahio", targets: ["Runtahio"]),
+        .executable(name: "RuntahioBench", targets: ["RuntahioBench"]),
         .library(name: "RuntahioCore", targets: ["RuntahioCore"]),
     ],
     targets: [
@@ -25,6 +26,14 @@ let package = Package(
             // The iconset under Resources/ is consumed by Scripts/make-app.sh (iconutil),
             // not bundled by SPM, so exclude it from the target's source scan.
             exclude: ["Resources"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        // Headless benchmark harness over RuntahioCore (no SwiftUI). See Scripts/benchmark.sh.
+        .executableTarget(
+            name: "RuntahioBench",
+            dependencies: ["RuntahioCore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
