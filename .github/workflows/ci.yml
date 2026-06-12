@@ -49,12 +49,8 @@ jobs:
         run: ./Scripts/make-app.sh
 
   lint:
-    name: Lint (advisory)
+    name: Lint
     runs-on: macos-15
-    # Advisory: surfaces swift-format issues without blocking merges. Once the tree
-    # is formatted (swift format --in-place --recursive Sources Tests), drop
-    # continue-on-error and add this check to branch protection to enforce it.
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -67,13 +63,6 @@ jobs:
           swift --version
 
       - name: swift-format lint
-        run: |
-          set +e
-          swift format lint --strict --recursive Sources Tests 2>&1 | tee swift-format.log
-          count="$(grep -cE 'warning:|error:' swift-format.log)"
-          {
-            echo "### swift-format: ${count} issue(s)"
-            echo ""
-            echo "Advisory only. Run \`swift format --in-place --recursive Sources Tests\` to fix."
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit 0
+        # Fails the check on any violation. Fix locally with:
+        #   swift format --in-place --recursive Sources Tests
+        run: swift format lint --strict --recursive Sources Tests

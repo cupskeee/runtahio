@@ -67,7 +67,8 @@ the right way to actually run the app.
 - Prefer pure functions and value types; keep `@MainActor` boundaries explicit.
 - Formatting follows the repo's [`.swift-format`](.swift-format) config (4-space indent,
   100-column). Run `swift format --in-place --recursive Sources Tests` before committing.
-  CI runs `swift format lint` (currently **advisory** — it won't block your PR).
+  CI **enforces** this with `swift format lint --strict`, so an unformatted PR fails the
+  **Lint** check.
 
 ## Commit messages
 
