@@ -177,7 +177,7 @@ Sources/RuntahioCore/              Pure, testable logic (no SwiftUI, no @main)
 Sources/Runtahio/                  SwiftUI app: RuntahioApp + views + AppKit/QuickLook
   RuntahMapView, TreemapView       The two visualizations (SwiftUI Canvas)
   AnalysisView, OnboardingView…    Analysis views, onboarding, shared NodeUI/menus
-Tests/RuntahioCoreTests/           84 XCTest cases over the Core library
+Tests/RuntahioCoreTests/           85 XCTest cases over the Core library
 Scripts/make-app.sh                Wraps the binary into a signed Runtahio.app (+ icon)
 Scripts/generate-icon.swift        Renders the original "bloom" app iconset
 ```
@@ -189,7 +189,7 @@ store rather than by mutating the shared tree.
 
 ## Tests
 
-`swift test` runs 84 headless XCTest cases covering scanner aggregation (nested sizes,
+`swift test` runs 85 headless XCTest cases covering scanner aggregation (nested sizes,
 symlinks not followed, hidden counting, packages, inaccessible directories, cancellation),
 radial and treemap layout (angle-sum / area-conservation / hit-test round-trips), the full
 protected-path matrix, basket dedup/overlap-safe totals, the Trash flow against real temp
