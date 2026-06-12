@@ -51,6 +51,27 @@ CONTENTS="$APP_DIR/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
 
+# Derive the version from git so the bundle matches the release tag.
+# CFBundleShortVersionString must be up to three dot-separated integers (e.g. 0.1.0):
+# take the nearest reachable tag, strip a leading "v", and keep the X[.Y[.Z]] run.
+# CFBundleVersion uses the total commit count as a monotonic build number.
+# Both fall back to sane defaults when building outside a git checkout (e.g. a tarball).
+SHORT_VERSION="0.0.0"
+BUILD_VERSION="1"
+if git -C "$ROOT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  TAG="$(git -C "$ROOT_DIR" describe --tags --abbrev=0 2>/dev/null || true)"
+  CLEAN="${TAG#[vV]}"
+  CLEAN="${CLEAN%%-*}"
+  if [[ "$CLEAN" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+    SHORT_VERSION="$CLEAN"
+  fi
+  COUNT="$(git -C "$ROOT_DIR" rev-list --count HEAD 2>/dev/null || true)"
+  if [[ "$COUNT" =~ ^[0-9]+$ ]]; then
+    BUILD_VERSION="$COUNT"
+  fi
+fi
+echo "==> Version: $SHORT_VERSION (build $BUILD_VERSION)"
+
 echo "==> Assembling $APP_NAME.app…"
 rm -rf "$APP_DIR"
 mkdir -p "$MACOS" "$RESOURCES"
@@ -69,8 +90,8 @@ cat > "$CONTENTS/Info.plist" <<PLIST
     <key>CFBundleName</key>                        <string>$APP_NAME</string>
     <key>CFBundleDisplayName</key>                 <string>$APP_NAME</string>
     <key>CFBundlePackageType</key>                 <string>APPL</string>
-    <key>CFBundleShortVersionString</key>          <string>1.0</string>
-    <key>CFBundleVersion</key>                     <string>1</string>
+    <key>CFBundleShortVersionString</key>          <string>$SHORT_VERSION</string>
+    <key>CFBundleVersion</key>                     <string>$BUILD_VERSION</string>
     <key>LSMinimumSystemVersion</key>              <string>26.0</string>
     <key>LSApplicationCategoryType</key>           <string>public.app-category.utilities</string>
     <key>NSHighResolutionCapable</key>             <true/>
