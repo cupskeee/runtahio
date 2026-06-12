@@ -65,11 +65,20 @@ the right way to actually run the app.
 - Match the surrounding code: clear names, focused types, doc comments on public API.
 - Keep `RuntahioCore` free of SwiftUI/AppKit imports.
 - Prefer pure functions and value types; keep `@MainActor` boundaries explicit.
+- Formatting follows the repo's [`.swift-format`](.swift-format) config (4-space indent,
+  100-column). Run `swift format --in-place --recursive Sources Tests` before committing.
+  CI runs `swift format lint` (currently **advisory** — it won't block your PR).
 
 ## Commit messages
 
 Use clear, imperative subject lines (e.g. "Add CSV export for analysis views"). A short
 body explaining the *why* is appreciated for non-obvious changes.
+
+## Releasing
+
+Maintainers: see [RELEASING.md](RELEASING.md). In short — update `CHANGELOG.md`, then push
+a `vX.Y.Z` tag; the Release workflow builds the signed `.app`, checksums it, and publishes
+the GitHub Release automatically.
 
 ## Reporting bugs & requesting features
 

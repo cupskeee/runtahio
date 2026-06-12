@@ -1,0 +1,83 @@
+name: Release
+
+# Tag a release and push the tag to trigger this:
+#   git tag v0.2.0 && git push origin v0.2.0
+# It builds the signed .app bundle, zips + checksums it, and publishes a GitHub
+# Release with notes = the CHANGELOG section + .github/release-footer.md.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish release
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # tags + history so make-app.sh stamps the right version
+
+      - name: Select newest Xcode & require Swift 6.2+
+        run: |
+          set -euo pipefail
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "${latest}" ]; then sudo xcode-select -s "${latest}"; fi
+          swift --version
+          have="$(swift -version 2>&1 | grep -oE 'Swift version [0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)"
+          req="6.2"
+          if [ -z "${have}" ] || [ "$(printf '%s\n%s\n' "$req" "$have" | sort -V | head -1)" != "$req" ]; then
+            echo "::error::Swift ${have:-unknown} < required ${req}"; exit 1
+          fi
+
+      - name: Build app bundle
+        run: ./Scripts/make-app.sh
+
+      - name: Package + checksum
+        id: pkg
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          zip="Runtahio-${tag}-macOS-arm64.zip"
+          ditto -c -k --sequesterRsrc --keepParent Runtahio.app "$zip"
+          shasum -a 256 "$zip" | tee "${zip}.sha256"
+          echo "zip=${zip}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          ver="${GITHUB_REF_NAME#v}"
+          # Pull the CHANGELOG section for this version (between "## [ver]" and the next heading/link-ref).
+          awk -v v="$ver" '
+            $0 ~ "^## \\[" v "\\]" { grab=1; next }
+            grab && /^## / { exit }
+            grab && /^\[[^]]+\]: / { exit }
+            grab { print }
+          ' CHANGELOG.md > section.md || true
+          if [ ! -s section.md ]; then
+            echo "See the [CHANGELOG](https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md)." > section.md
+          fi
+          cat section.md .github/release-footer.md > release-notes.md
+          echo "file=release-notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          zip="${{ steps.pkg.outputs.zip }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$zip" "${zip}.sha256" --clobber
+            gh release edit "$tag" --notes-file "${{ steps.notes.outputs.file }}"
+          else
+            gh release create "$tag" \
+              --title "Runtahio $tag" \
+              --notes-file "${{ steps.notes.outputs.file }}" \
+              "$zip" "${zip}.sha256"
+          fi

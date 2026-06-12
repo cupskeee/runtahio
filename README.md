@@ -18,6 +18,22 @@ after a strong confirmation. Everything happens locally — no network, no telem
 
 ---
 
+## Screenshots
+
+> _Screenshots coming soon._ See [`docs/images/`](docs/images/) for the planned shots and
+> capture tips; uncomment the tags below once the images are added.
+
+<!--
+<p align="center">
+  <img src="docs/images/runtah-map.png" alt="Runtah Map sunburst" width="800"><br>
+  <em>The radial Runtah Map — angle ∝ size, colored by file type.</em>
+</p>
+<p align="center">
+  <img src="docs/images/treemap.png" alt="Treemap view" width="800"><br>
+  <em>The squarified treemap, switchable per scan.</em>
+</p>
+-->
+
 ## What Runtahio does
 
 - **Scan** any folder or volume recursively, off the main thread, reading *metadata only*

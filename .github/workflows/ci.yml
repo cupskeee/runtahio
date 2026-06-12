@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "0 14 * * 1" # weekly (Mon 14:00 UTC) to catch toolchain/SDK drift
   workflow_dispatch:
 
 concurrency:
@@ -20,19 +22,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # tags + full history so make-app.sh can stamp the version
 
-      - name: Select newest installed Xcode
+      - name: Select newest Xcode & require Swift 6.2+
         run: |
           set -euo pipefail
           latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1 || true)"
-          if [ -n "${latest}" ]; then
-            sudo xcode-select -s "${latest}"
-          fi
+          if [ -n "${latest}" ]; then sudo xcode-select -s "${latest}"; fi
           xcodebuild -version || true
           swift --version
+          have="$(swift -version 2>&1 | grep -oE 'Swift version [0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+' | head -1)"
+          req="6.2"
+          if [ -z "${have}" ] || [ "$(printf '%s\n%s\n' "$req" "$have" | sort -V | head -1)" != "$req" ]; then
+            echo "::error::Swift ${have:-unknown} found, but Runtahio requires Swift ${req}+. Bump the runner image (runs-on)."
+            exit 1
+          fi
 
       - name: Build
         run: swift build -v
 
       - name: Test
         run: swift test -v
+
+      - name: Package .app (smoke-test make-app.sh)
+        run: ./Scripts/make-app.sh
+
+  lint:
+    name: Lint (advisory)
+    runs-on: macos-15
+    # Advisory: surfaces swift-format issues without blocking merges. Once the tree
+    # is formatted (swift format --in-place --recursive Sources Tests), drop
+    # continue-on-error and add this check to branch protection to enforce it.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "${latest}" ]; then sudo xcode-select -s "${latest}"; fi
+          swift --version
+
+      - name: swift-format lint
+        run: |
+          set +e
+          swift format lint --strict --recursive Sources Tests 2>&1 | tee swift-format.log
+          count="$(grep -cE 'warning:|error:' swift-format.log)"
+          {
+            echo "### swift-format: ${count} issue(s)"
+            echo ""
+            echo "Advisory only. Run \`swift format --in-place --recursive Sources Tests\` to fix."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
